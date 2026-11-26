@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OCR GCSE Computer Science (J277) — Animated Fetch-Decode-Execute Simulator</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS: CRISP CLASSROOM SCHEMATIC PALETTE (#F4F7FB)
+       ========================================================================== */
+    :root {
+      --bg-canvas: #f4f7fb;
+      --bg-surface: #ffffff;
+      --bg-subtle: #e9eff7;
+      --border-line: #cbd5e1;
+      --border-strong: #94a3b8;
+
+      --text-main: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+
+      /* Stage & Component Accent Colors */
+      --fetch-primary: #0284c7;     /* Vivid Sky Blue */
+      --fetch-soft: #e0f2fe;
+      --fetch-glow: rgba(2, 132, 199, 0.35);
+
+      --decode-primary: #d97706;    /* Vivid Amber */
+      --decode-soft: #fef3c7;
+      --decode-glow: rgba(217, 119, 6, 0.35);
+
+      --execute-primary: #059669;   /* Vivid Emerald */
+      --execute-soft: #d1fae5;
+      --execute-glow: rgba(5, 150, 105, 0.35);
+
+      /* System Bus Colors */
+      --bus-addr: #7c3aed;          /* Purple - Address Bus */
+      --bus-data: #0284c7;          /* Blue - Data Bus */
+      --bus-ctrl: #e11d48;          /* Crimson - Control Bus */
+
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================================================
+       TOP HEADER & LIVE SYSTEM CLOCK WAVEFORM BAR
+       ========================================================================== */
+    header {
+      background: var(--bg-surface);
+      border-bottom: 2px solid var(--border-line);
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      z-index: 20;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .ocr-pill {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      text-transform: uppercase;
+    }
+
+    .brand-area h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-area p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Live Animated Clock Oscillator Box */
+    .clock-widget {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 0.4rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.14);
+    }
+
+    .clock-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .clock-title {
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .clock-led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+      transition: transform 0.12s ease, background-color 0.2s ease;
+    }
+
+    .clock-led.pulse {
+      transform: scale(1.65);
+    }
+
+    .clock-tick-readout {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    #clock-wave-svg {
+      width: 115px;
+      height: 28px;
+      overflow: visible;
+    }
+
+    /* ==========================================================================
+       CINEMATIC CONTROLS & PHASE TIMELINE BAR
+       ========================================================================== */
+    .control-bar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-line);
+      padding: 0.55rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      z-index: 15;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .btn {
+      font-family: var(--font-sans);
+      font-size: 0.83rem;
+      font-weight: 700;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border-line);
+      background: #ffffff;
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--bg-subtle);
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-play {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-play:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+    }
+
+    .btn-play.playing {
+      background: linear-gradient(135deg, #d97706, #b45309);
+      border-color: #d97706;
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+    }
+
+    select.prog-select {
+      font-family: var(--font-sans);
+      font-size: 0.83rem;
+      font-weight: 700;
+      padding: 0.44rem 0.7rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border-strong);
+      background: #f8fafc;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .speed-box {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #f8fafc;
+      border: 1.5px solid var(--border-line);
+      padding: 0.34rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-body);
+    }
+
+    .speed-box input {
+      width: 72px;
+      accent-color: #0284c7;
+      cursor: pointer;
+    }
+
+    /* Animated Stage Banner & Progress Steps */
+    .stage-banner-strip {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-line);
+      padding: 0.6rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .phase-pills {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .phase-pill {
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      border: 2px solid transparent;
+      transition: all 0.25s ease;
+    }
+
+    .phase-pill.active-FETCH {
+      background: var(--fetch-soft);
+      color: var(--fetch-primary);
+      border-color: var(--fetch-primary);
+      box-shadow: 0 0 14px var(--fetch-glow);
+      transform: scale(1.04);
+    }
+
+    .phase-pill.active-DECODE {
+      background: var(--decode-soft);
+      color: var(--decode-primary);
+      border-color: var(--decode-primary);
+      box-shadow: 0 0 14px var(--decode-glow);
+      transform: scale(1.04);
+    }
+
+    .phase-pill.active-EXECUTE {
+      background: var(--execute-soft);
+      color: var(--execute-primary);
+      border-color: var(--execute-primary);
+      box-shadow: 0 0 14px var(--execute-glow);
+      transform: scale(1.04);
+    }
+
+    .micro-timeline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .m-step {
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 0.28rem 0.6rem;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      border: 1px solid var(--border-line);
+      transition: all 0.2s ease;
+    }
+
+    .m-step.done {
+      background: #e2e8f0;
+      color: var(--text-body);
+    }
+
+    .m-step.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+    }
+
+    /* ==========================================================================
+       MAIN SCHEMATIC STAGE (CPU + ANIMATED BUSES + RAM)
+       ========================================================================== */
+    .stage-wrapper {
+      flex: 1;
+      padding: 1rem 1.25rem 0.75rem;
+      max-width: 1580px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .schematic-board {
+      position: relative;
+      background-color: #ffffff;
+      background-image:
+        radial-gradient(#cbd5e1 1px, transparent 1px),
+        radial-gradient(#e2e8f0 1px, #ffffff 1px);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+      border: 2px solid var(--border-line);
+      border-radius: 16px;
+      padding: 2.35rem 1.15rem 1.15rem;
+      display: grid;
+      grid-template-columns: 1.65fr 185px 1fr;
+      gap: 0.5rem;
+      align-items: stretch;
+      min-height: 495px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    @media (max-width: 960px) {
+      .schematic-board {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        padding-top: 2.6rem;
+      }
+    }
+
+    /* Floating Contextual Callout Bubble above Active Component */
+    .floating-callout {
+      position: absolute;
+      z-index: 40;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.55rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      max-width: 310px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.28);
+      border: 2px solid var(--fetch-primary);
+      pointer-events: none;
+      transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                  top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color 0.25s ease;
+      line-height: 1.35;
+    }
+
+    .floating-callout::after {
+      content: "";
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 8px 0;
+      border-style: solid;
+      border-color: #0f172a transparent transparent;
+    }
+
+    .floating-callout .callout-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-bottom: 0.2rem;
+      background: var(--fetch-primary);
+      color: #fff;
+    }
+
+    /* SVG Circuit Trace & Particle Layer */
+    #circuit-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 12;
+      overflow: visible;
+    }
+
+    @keyframes dashFlowForward {
+      to { stroke-dashoffset: -28; }
+    }
+    @keyframes dashFlowBackward {
+      to { stroke-dashoffset: 28; }
+    }
+
+    .bus-flow-forward {
+      animation: dashFlowForward 0.65s linear infinite;
+    }
+    .bus-flow-backward {
+      animation: dashFlowBackward 0.65s linear infinite;
+    }
+
+    /* ==========================================================================
+       CPU ENCLOSURE & INTERNAL BLOCKS
+       ========================================================================== */
+    .cpu-enclosure {
+      position: relative;
+      z-index: 5;
+      background: rgba(248, 250, 252, 0.94);
+      border: 2.5px solid #2563eb;
+      border-radius: 14px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid var(--border-line);
+      padding-bottom: 0.4rem;
+    }
+
+    .section-title {
+      font-size: 0.86rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #1e3a8a;
+    }
+
+    .section-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: #e2e8f0;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    /* Top Row: Control Unit, ALU, and Cache */
+    .cpu-top-units {
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr 0.8fr;
+      gap: 0.65rem;
+    }
+
+    @media (max-width: 640px) {
+      .cpu-top-units {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hw-unit {
+      position: relative;
+      background: #ffffff;
+      border: 2px solid var(--border-line);
+      border-radius: 11px;
+      padding: 0.6rem 0.7rem;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.25s ease,
+                  border-color 0.25s ease,
+                  background-color 0.25s ease;
+    }
+
+    .hw-unit:hover {
+      border-color: var(--border-strong);
+    }
+
+    .hw-unit h3 {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hw-unit .unit-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .unit-readout {
+      margin-top: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      border: 1px solid var(--border-line);
+      border-radius: 6px;
+      padding: 0.28rem 0.45rem;
+      color: var(--text-main);
+      min-height: 1.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Animated ALU Spark Badge */
+    .alu-spark {
+      display: inline-block;
+      font-size: 0.85rem;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.25s ease;
+    }
+    .alu-spark.active {
+      opacity: 1;
+      transform: scale(1.25) rotate(12deg);
+    }
+
+    /* Registers Grid (PC, MAR, MDR, ACC) */
+    .reg-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      flex: 1;
+    }
+
+    .reg-card {
+      position: relative;
+      background: #ffffff;
+      border: 2px solid var(--border-line);
+      border-radius: 12px;
+      padding: 0.65rem 0.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.25s ease,
+                  border-color 0.25s ease,
+                  background-color 0.25s ease;
+    }
+
+    .reg-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .reg-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.35rem;
+    }
+
+    .reg-code {
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .reg-fullname {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .reg-screen {
+      margin-top: 0.45rem;
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 800;
+      padding: 0.4rem 0.65rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .reg-role-chip {
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.14rem 0.42rem;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+    }
+
+    /* Active Spotlight States for CPU Components & Registers */
+    .spotlight-FETCH {
+      border-color: var(--fetch-primary) !important;
+      background-color: #f0f9ff !important;
+      box-shadow: 0 0 0 4px var(--fetch-glow), 0 8px 20px rgba(2, 132, 199, 0.18) !important;
+      transform: scale(1.025);
+      z-index: 10;
+    }
+
+    .spotlight-DECODE {
+      border-color: var(--decode-primary) !important;
+      background-color: #fffbeb !important;
+      box-shadow: 0 0 0 4px var(--decode-glow), 0 8px 20px rgba(217, 119, 6, 0.18) !important;
+      transform: scale(1.025);
+      z-index: 10;
+    }
+
+    .spotlight-EXECUTE {
+      border-color: var(--execute-primary) !important;
+      background-color: #ecfdf5 !important;
+      box-shadow: 0 0 0 4px var(--execute-glow), 0 8px 20px rgba(5, 150, 105, 0.18) !important;
+      transform: scale(1.025);
+      z-index: 10;
+    }
+
+    /* Ripple Shockwave on Value Update */
+    @keyframes rippleBurst {
+      0% {
+        box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.65);
+      }
+      100% {
+        box-shadow: 0 0 0 18px rgba(2, 132, 199, 0);
+      }
+    }
+
+    .value-updated {
+      animation: rippleBurst 0.6s ease-out;
+    }
+
+    /* ==========================================================================
+       CENTER COLUMN: SYSTEM BUSES
+       ========================================================================== */
+    .buses-lane {
+      position: relative;
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      padding: 1.4rem 0;
+    }
+
+    .bus-pill {
+      background: #ffffff;
+      border: 2px solid var(--border-line);
+      border-radius: 10px;
+      padding: 0.4rem 0.55rem;
+      text-align: center;
+      width: 94%;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .bus-pill .b-name {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .bus-pill .b-sub {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .bus-addr .b-name { color: var(--bus-addr); }
+    .bus-data .b-name { color: var(--bus-data); }
+    .bus-ctrl .b-name { color: var(--bus-ctrl); }
+
+    .bus-pill.active-addr {
+      border-color: var(--bus-addr);
+      background: #f5f3ff;
+      box-shadow: 0 0 14px rgba(124, 58, 237, 0.3);
+      transform: scale(1.05);
+    }
+    .bus-pill.active-data {
+      border-color: var(--bus-data);
+      background: #f0f9ff;
+      box-shadow: 0 0 14px rgba(2, 132, 199, 0.3);
+      transform: scale(1.05);
+    }
+    .bus-pill.active-ctrl {
+      border-color: var(--bus-ctrl);
+      background: #fff1f2;
+      box-shadow: 0 0 14px rgba(225, 29, 72, 0.3);
+      transform: scale(1.05);
+    }
+
+    /* ==========================================================================
+       RIGHT ENCLOSURE: MAIN MEMORY (RAM)
+       ========================================================================== */
+    .ram-enclosure {
+      position: relative;
+      z-index: 5;
+      background: rgba(248, 250, 252, 0.94);
+      border: 2.5px solid #7c3aed;
+      border-radius: 14px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.08);
+    }
+
+    .ram-enclosure .section-title {
+      color: #5b21b6;
+    }
+
+    .ram-grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-line);
+    }
+
+    .ram-grid-table th {
+      font-family: var(--font-sans);
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      background: #f1f5f9;
+      padding: 0.38rem 0.55rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-line);
+    }
+
+    .ram-cell-row {
+      border-bottom: 1px solid #e2e8f0;
+      transition: background-color 0.25s ease, transform 0.2s ease;
+    }
+
+    .ram-cell-row:last-child {
+      border-bottom: none;
+    }
+
+    .ram-cell-row td {
+      padding: 0.42rem 0.55rem;
+    }
+
+    .ram-cell-row .col-addr {
+      font-weight: 800;
+      color: #6d28d9;
+      width: 62px;
+    }
+
+    .ram-cell-row .col-val {
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .ram-cell-row .col-type {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .ram-cell-row.ram-hit-FETCH {
+      background: #e0f2fe;
+      box-shadow: inset 4px 0 0 var(--fetch-primary);
+    }
+
+    .ram-cell-row.ram-hit-EXECUTE {
+      background: #d1fae5;
+      box-shadow: inset 4px 0 0 var(--execute-primary);
+    }
+
+    .io-terminal {
+      margin-top: auto;
+      background: #0f172a;
+      color: #34d399;
+      border-radius: 9px;
+      padding: 0.55rem 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .io-terminal span.io-label {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+    }
+
+    /* ==========================================================================
+       LIVE NARRATION & COLLAPSIBLE OCR J277 REGISTER ROLES STRIP
+       ========================================================================== */
+    .narration-card {
+      background: #ffffff;
+      border: 2px solid var(--border-line);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .narration-main {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .narration-main h2 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.15rem;
+    }
+
+    .narration-main p {
+      font-size: 0.86rem;
+      color: var(--text-body);
+      line-height: 1.45;
+    }
+
+    .ocr-exam-badge {
+      background: #f8fafc;
+      border-left: 4px solid var(--fetch-primary);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0 8px 8px 0;
+      max-width: 440px;
+      font-size: 0.8rem;
+      color: var(--text-body);
+    }
+
+    .ocr-exam-badge strong {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
+      margin-bottom: 0.1rem;
+    }
+
+    /* Collapsible Bottom Reference Strip */
+    .reference-drawer {
+      background: #ffffff;
+      border: 1.5px solid var(--border-line);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+
+    .drawer-toggle {
+      width: 100%;
+      background: #f8fafc;
+      border: none;
+      padding: 0.6rem 1rem;
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .drawer-toggle:hover {
+      background: #f1f5f9;
+    }
+
+    .drawer-content {
+      display: none;
+      padding: 0.85rem 1rem;
+      border-top: 1px solid var(--border-line);
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .drawer-content.open {
+      display: grid;
+    }
+
+    .ref-tile {
+      background: #f8fafc;
+      border: 1px solid var(--border-line);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .ref-tile h4 {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #0284c7;
+      margin-bottom: 0.2rem;
+    }
+
+    .ref-tile p {
+      font-size: 0.78rem;
+      color: var(--text-body);
+      line-height: 1.4;
+    }
+
+    /* Component Click Inspector Toast / Modal */
+    .inspector-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1rem;
+    }
+
+    .inspector-modal.open {
+      display: flex;
+    }
+
+    .inspector-card {
+      background: #ffffff;
+      border: 2px solid #0284c7;
+      border-radius: 14px;
+      max-width: 480px;
+      width: 100%;
+      padding: 1.2rem;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+    }
+
+    .inspector-card h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.45rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .inspector-card p {
+      font-size: 0.88rem;
+      color: var(--text-body);
+      line-height: 1.55;
+      margin-bottom: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       HEADER WITH ANIMATED CLOCK PULSE OSCILLATOR
+       ======================================================================== -->
+  <header>
+    <div class="brand-area">
+      <span class="ocr-pill">OCR GCSE J277</span>
+      <div>
+        <h1>Fetch–Decode–Execute Cycle &amp; CPU Registers</h1>
+        <p>Live Animated Von Neumann Microprocessor • Click any component for its OCR exam definition</p>
+      </div>
+    </div>
+
+    <!-- Real-Time Animated Clock Wave Generator -->
+    <div class="clock-widget" title="CPU System Clock synchronises every Fetch, Decode, and Execute micro-step">
+      <div class="clock-meta">
+        <span class="clock-title"><span class="clock-led" id="clock-led"></span> System Clock</span>
+        <span class="clock-tick-readout" id="clock-tick-readout">CYCLE 1 • FETCH</span>
+      </div>
+      <svg id="clock-wave-svg" viewBox="0 0 120 30" xmlns="http://www.w3.org/2000/svg">
+        <path id="clock-wave-path"
+              d="M0,24 L15,24 L15,6 L30,6 L30,24 L45,24 L45,6 L60,6 L60,24 L75,24 L75,6 L90,6 L90,24 L105,24 L105,6 L120,6"
+              fill="none"
+              stroke="#38bdf8"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round" />
+      </svg>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       SIMULATION PLAYBACK CONTROLS
+       ======================================================================== -->
+  <div class="control-bar">
+    <div class="btn-row">
+      <button class="btn btn-play playing" id="btn-play" type="button">⏸ Pause Cinematic</button>
+      <button class="btn" id="btn-prev" type="button">◀ Step Back</button>
+      <button class="btn" id="btn-next" type="button">Step Forward ▶</button>
+      <button class="btn" id="btn-reset" type="button">↺ Reset</button>
+
+      <select id="program-select" class="prog-select" aria-label="Select LMC Assembly Program">
+        <option value="add">Program 1: Addition (LDA 05, ADD 06, STA 07, OUT, HLT)</option>
+        <option value="sub">Program 2: Subtraction (LDA 05, SUB 06, OUT, STA 07, HLT)</option>
+        <option value="loop">Program 3: Countdown Loop (LDA, SUB, STA, OUT, BRP, HLT)</option>
+      </select>
+    </div>
+
+    <div class="speed-box">
+      <span>Pace:</span>
+      <input type="range" id="speed-slider" min="1" max="3" step="1" value="1" />
+      <span id="speed-label">Classroom (Slow)</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PHASE BANNER & MICRO-STEP PROGRESS TIMELINE
+       ======================================================================== -->
+  <div class="stage-banner-strip">
+    <div class="phase-pills">
+      <div class="phase-pill active-FETCH" id="pill-FETCH">1. Fetch</div>
+      <div class="phase-pill" id="pill-DECODE">2. Decode</div>
+      <div class="phase-pill" id="pill-EXECUTE">3. Execute</div>
+    </div>
+
+    <div class="micro-timeline" id="micro-timeline">
+      <span class="m-step active" data-m="0">1. PC → MAR</span>
+      <span class="m-step" data-m="1">2. Addr Bus + READ &amp; PC+1</span>
+      <span class="m-step" data-m="2">3. RAM → Data Bus → MDR</span>
+      <span class="m-step" data-m="3">4. CU Decodes</span>
+      <span class="m-step" data-m="4">5. Execute (ALU / ACC / RAM)</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MAIN ANIMATED SCHEMATIC BOARD
+       ======================================================================== -->
+  <main class="stage-wrapper">
+    <div class="schematic-board" id="schematic-board">
+
+      <!-- Floating Contextual Callout Bubble above Active Component -->
+      <div class="floating-callout" id="floating-callout">
+        <span class="callout-tag" id="callout-tag">FETCH</span>
+        <div id="callout-text">Program Counter (PC) holds address 0000 of the next instruction.</div>
+      </div>
+
+      <!-- SVG Overlay for Flowing Circuit Traces, Curved Paths, Particles & Shockwaves -->
+      <svg id="circuit-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+
+      <!-- ====================================================================
+           LEFT: CENTRAL PROCESSING UNIT (CPU)
+           ==================================================================== -->
+      <section class="cpu-enclosure" id="cpu-enclosure">
+        <div class="section-header">
+          <span class="section-title">Central Processing Unit (CPU)</span>
+          <span class="section-badge">Von Neumann Architecture</span>
+        </div>
+
+        <!-- Control Unit, ALU & Cache -->
+        <div class="cpu-top-units">
+          <div class="hw-unit" id="unit-cu" data-inspect="cu">
+            <h3>Control Unit (CU) <span>⚙️</span></h3>
+            <div class="unit-sub">Decodes instructions &amp; sends control signals</div>
+            <div class="unit-readout" id="cu-readout">Ready</div>
+          </div>
+
+          <div class="hw-unit" id="unit-alu" data-inspect="alu">
+            <h3>ALU <span>🧮</span></h3>
+            <div class="unit-sub">Arithmetic (+, −) &amp; Logic (&lt;, &gt;, =)</div>
+            <div class="unit-readout">
+              <span id="alu-readout">Idle</span>
+              <span class="alu-spark" id="alu-spark">⚡</span>
+            </div>
+          </div>
+
+          <div class="hw-unit" id="unit-cache" data-inspect="cache">
+            <h3>Cache <span>⚡</span></h3>
+            <div class="unit-sub">Fast on-chip memory</div>
+            <div class="unit-readout" id="cache-readout">Hit Check</div>
+          </div>
+        </div>
+
+        <!-- Core OCR J277 Registers -->
+        <div class="reg-grid">
+          <div class="reg-card" id="reg-pc" data-inspect="pc">
+            <div class="reg-header">
+              <span class="reg-code">PC</span>
+              <span class="reg-fullname">Program Counter</span>
+            </div>
+            <div class="reg-screen">
+              <span id="val-pc">0000</span>
+              <span class="reg-role-chip">Next Addr</span>
+            </div>
+          </div>
+
+          <div class="reg-card" id="reg-mar" data-inspect="mar">
+            <div class="reg-header">
+              <span class="reg-code">MAR</span>
+              <span class="reg-fullname">Memory Address Register</span>
+            </div>
+            <div class="reg-screen">
+              <span id="val-mar">----</span>
+              <span class="reg-role-chip">Active Addr</span>
+            </div>
+          </div>
+
+          <div class="reg-card" id="reg-mdr" data-inspect="mdr">
+            <div class="reg-header">
+              <span class="reg-code">MDR</span>
+              <span class="reg-fullname">Memory Data Register</span>
+            </div>
+            <div class="reg-screen">
+              <span id="val-mdr">----</span>
+              <span class="reg-role-chip">Data / Instr</span>
+            </div>
+          </div>
+
+          <div class="reg-card" id="reg-acc" data-inspect="acc">
+            <div class="reg-header">
+              <span class="reg-code">ACC</span>
+              <span class="reg-fullname">Accumulator</span>
+            </div>
+            <div class="reg-screen">
+              <span id="val-acc">0000</span>
+              <span class="reg-role-chip">ALU Result</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           CENTER: SYSTEM BUSES (ADDRESS, DATA, CONTROL)
+           ==================================================================== -->
+      <section class="buses-lane" id="buses-lane">
+        <div class="bus-pill bus-addr" id="bus-addr-pill" data-inspect="addrbus">
+          <span class="b-name">Address Bus →</span>
+          <span class="b-sub">One-Way (CPU → RAM)</span>
+        </div>
+
+        <div class="bus-pill bus-data" id="bus-data-pill" data-inspect="databus">
+          <span class="b-name">↔ Data Bus ↔</span>
+          <span class="b-sub">Bi-Directional (CPU ↔ RAM)</span>
+        </div>
+
+        <div class="bus-pill bus-ctrl" id="bus-ctrl-pill" data-inspect="ctrlbus">
+          <span class="b-name">↔ Control Bus ↔</span>
+          <span class="b-sub" id="ctrl-signal-text">READ / WRITE / CLOCK</span>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           RIGHT: MAIN MEMORY (RAM)
+           ==================================================================== -->
+      <section class="ram-enclosure" id="ram-enclosure">
+        <div class="section-header">
+          <span class="section-title">Main Memory (RAM)</span>
+          <span class="section-badge">Instructions &amp; Data</span>
+        </div>
+
+        <table class="ram-grid-table" aria-label="Main Memory Addresses 0000 to 0007">
+          <thead>
+            <tr>
+              <th>Address</th>
+              <th>Contents</th>
+              <th style="text-align:right;">Stored Item</th>
+            </tr>
+          </thead>
+          <tbody id="ram-tbody"></tbody>
+        </table>
+
+        <div class="io-terminal">
+          <span class="io-label">Output Screen (OUT)</span>
+          <span id="output-display">Ready</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======================================================================
+         LIVE OCR GCSE NARRATION STRIP
+         ====================================================================== -->
+    <section class="narration-card">
+      <div class="narration-main">
+        <h2 id="narration-title">Fetch Stage: Ready to Begin</h2>
+        <p id="narration-desc">In a Von Neumann architecture, program instructions and data share Main Memory (RAM). Watch how the CPU registers and buses work together on every clock tick.</p>
+      </div>
+      <div class="ocr-exam-badge" id="ocr-exam-badge">
+        <strong>📝 OCR J277 Exam Mark-Scheme Tip</strong>
+        <span id="ocr-tip-text">State clearly that the PC holds the memory address of the next instruction, whereas the MDR holds the actual instruction or data fetched from RAM.</span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         COLLAPSIBLE BOTTOM REFERENCE STRIP (OCR J277 REGISTER ROLES)
+         ====================================================================== -->
+    <div class="reference-drawer">
+      <button class="drawer-toggle" id="drawer-toggle" type="button">
+        <span>📚 OCR J277 Register &amp; Component Roles Quick-Reference (Click to Expand / Collapse)</span>
+        <span id="drawer-arrow">▼ Show</span>
+      </button>
+      <div class="drawer-content" id="drawer-content">
+        <div class="ref-tile">
+          <h4>Program Counter (PC)</h4>
+          <p>Holds the memory address of the <strong>next instruction</strong> to be fetched from Main Memory. Increments by 1 during Fetch.</p>
+        </div>
+        <div class="ref-tile">
+          <h4>Memory Address Register (MAR)</h4>
+          <p>Holds the memory address of the current instruction or data being read from or written to RAM via the unidirectional Address Bus.</p>
+        </div>
+        <div class="ref-tile">
+          <h4>Memory Data Register (MDR)</h4>
+          <p>Holds the actual instruction or data fetched from RAM (or waiting to be written to RAM) via the bidirectional Data Bus.</p>
+        </div>
+        <div class="ref-tile">
+          <h4>Accumulator (ACC)</h4>
+          <p>Stores intermediate and final results of arithmetic and logic calculations performed by the ALU.</p>
+        </div>
+        <div class="ref-tile">
+          <h4>Control Unit (CU) &amp; ALU</h4>
+          <p><strong>CU:</strong> Decodes instructions and sends Read/Write/Clock signals. <strong>ALU:</strong> Executes addition, subtraction, and logical comparisons.</p>
+        </div>
+        <div class="ref-tile">
+          <h4>Cache</h4>
+          <p>Very fast, small memory inside the CPU storing frequently used instructions and data to speed up access compared to RAM.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       CLICK-TO-INSPECT COMPONENT POPUP MODAL
+       ======================================================================== -->
+  <div class="inspector-modal" id="inspector-modal" role="dialog" aria-modal="true">
+    <div class="inspector-card">
+      <h3>
+        <span id="insp-heading">Component Definition</span>
+        <button class="btn" id="insp-close" type="button" style="padding:0.25rem 0.6rem;">✕</button>
+      </h3>
+      <p id="insp-text"></p>
+      <div style="text-align:right;">
+        <button class="btn btn-play" id="insp-ok" type="button">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       JAVASCRIPT ANIMATION & SIMULATION ENGINE
+       ======================================================================== -->
+  <script>
+    /* ========================================================================
+       1. OCR GCSE J277 DEFINITIONS FOR CLICK-TO-INSPECT
+       ======================================================================== */
+    const OCR_DEFINITIONS = {
+      pc: {
+        title: "Program Counter (PC)",
+        text: "OCR Definition: Holds the memory address of the NEXT instruction to be fetched from Main Memory (RAM). During each Fetch stage, its value is copied into the MAR and the PC is incremented by 1."
+      },
+      mar: {
+        title: "Memory Address Register (MAR)",
+        text: "OCR Definition: Holds the memory address of the current instruction or piece of data being accessed in Main Memory. The MAR sends this address out along the unidirectional Address Bus."
+      },
+      mdr: {
+        title: "Memory Data Register (MDR)",
+        text: "OCR Definition: Holds the actual instruction or data that has just been fetched from Main Memory (via the Data Bus), or data waiting to be written into Main Memory."
+      },
+      acc: {
+        title: "Accumulator (ACC)",
+        text: "OCR Definition: Temporarily stores the intermediate and final results of arithmetic and logical calculations carried out by the Arithmetic Logic Unit (ALU)."
+      },
+      cu: {
+        title: "Control Unit (CU)",
+        text: "OCR Definition: Coordinates all CPU operations, decodes fetched instructions into opcode and operand, and sends control signals (such as Memory Read, Memory Write, and Clock pulses) along the Control Bus."
+      },
+      alu: {
+        title: "Arithmetic Logic Unit (ALU)",
+        text: "OCR Definition: Performs all arithmetic calculations (such as addition and subtraction) and logical comparisons (such as equal to, greater than, or less than)."
+      },
+      cache: {
+        title: "CPU Cache Memory",
+        text: "OCR Definition: Small, high-speed volatile memory located on the CPU chip. It stores frequently used instructions and data so the CPU can access them faster than fetching from Main Memory (RAM)."
+      },
+      addrbus: {
+        title: "Address Bus (One-Way / Unidirectional)",
+        text: "OCR Definition: Carries memory addresses from the CPU (MAR) to Main Memory (RAM). It is unidirectional because addresses only ever travel from the CPU to RAM."
+      },
+      databus: {
+        title: "Data Bus (Bi-Directional)",
+        text: "OCR Definition: Carries instructions and data between Main Memory (RAM) and the CPU (MDR). It is bi-directional because data can be read from RAM or written back into RAM."
+      },
+      ctrlbus: {
+        title: "Control Bus (Bi-Directional)",
+        text: "OCR Definition: Carries control signals (such as Memory Read, Memory Write, Interrupts, and Clock ticks) between the Control Unit and other hardware components."
+      }
+    };
+
+    /* ========================================================================
+       2. LMC-STYLE ASSEMBLY PROGRAMS
+       ======================================================================== */
+    const PROGRAMS = {
+      add: [
+        { addr: "0000", val: "LDA 05", note: "Instruction" },
+        { addr: "0001", val: "ADD 06", note: "Instruction" },
+        { addr: "0002", val: "STA 07", note: "Instruction" },
+        { addr: "0003", val: "OUT",    note: "Instruction" },
+        { addr: "0004", val: "HLT",    note: "Instruction" },
+        { addr: "0005", val: "0012",   note: "Data (Num A)" },
+        { addr: "0006", val: "0025",   note: "Data (Num B)" },
+        { addr: "0007", val: "0000",   note: "Data (Total)" }
+      ],
+      sub: [
+        { addr: "0000", val: "LDA 05", note: "Instruction" },
+        { addr: "0001", val: "SUB 06", note: "Instruction" },
+        { addr: "0002", val: "OUT",    note: "Instruction" },
+        { addr: "0003", val: "STA 07", note: "Instruction" },
+        { addr: "0004", val: "HLT",    note: "Instruction" },
+        { addr: "0005", val: "0050",   note: "Data (Start)" },
+        { addr: "0006", val: "0018",   note: "Data (Minus)" },
+        { addr: "0007", val: "0000",   note: "Data (Result)" }
+      ],
+      loop: [
+        { addr: "0000", val: "LDA 06", note: "Instruction" },
+        { addr: "0001", val: "SUB 07", note: "Instruction" },
+        { addr: "0002", val: "STA 06", note: "Instruction" },
+        { addr: "0003", val: "OUT",    note: "Instruction" },
+        { addr: "0004", val: "BRP 01", note: "Branch >= 0" },
+        { addr: "0005", val: "HLT",    note: "Instruction" },
+        { addr: "0006", val: "0002",   note: "Data (Count)" },
+        { addr: "0007", val: "0001",   note: "Data (Step)" }
+      ]
+    };
+
+    function pad4(num) {
+      return String(num).padStart(4, "0");
+    }
+
+    function cloneRam(ram) {
+      return ram.map(r => ({ ...r }));
+    }
+
+    /* ========================================================================
+       3. BUILD COMPLETE 5-MICRO-STEP TIMELINE PER FDE CYCLE
+       ======================================================================== */
+    function generateTimeline(progKey) {
+      let ram = cloneRam(PROGRAMS[progKey]);
+      let pc = 0;
+      let mar = "----";
+      let mdr = "----";
+      let acc = 0;
+      let outList = [];
+      let cycle = 1;
+      let halted = false;
+      let guard = 0;
+
+      const steps = [];
+
+      while (!halted && guard < 12) {
+        guard++;
+        const addrStr = pad4(pc);
+        const instr = ram[pc].val;
+        const [opcode, rawOp] = instr.split(" ");
+        const targetIdx = rawOp ? parseInt(rawOp, 10) : null;
+        const targetAddrStr = targetIdx !== null ? pad4(targetIdx) : null;
+
+        // --- MICRO-STEP 0: FETCH 1 (PC -> MAR) ---
+        mar = addrStr;
+        steps.push({
+          stage: "FETCH",
+          microIdx: 0,
+          cycle,
+          title: `Cycle ${cycle} — Fetch (1/3): Copy PC (${addrStr}) into MAR`,
+          desc: `The Program Counter (${addrStr}) holds the address of the next instruction. Its value is copied into the Memory Address Register (MAR).`,
+          tip: "Mark Scheme: 'The address in the Program Counter (PC) is copied to the Memory Address Register (MAR).'",
+          calloutTarget: "reg-mar",
+          calloutText: `PC copies address ${addrStr} into the MAR.`,
+          state: { pc: addrStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") || "Ready" },
+          spotlights: { pc: "FETCH", mar: "FETCH" },
+          updatedReg: "reg-mar",
+          cuText: "Fetch: PC → MAR",
+          aluText: "Idle",
+          cacheText: "Check " + addrStr,
+          ctrlSignal: "CLOCK PULSE",
+          packet: { from: "reg-pc", to: "reg-mar", text: addrStr, color: "#0284c7", curve: -28 }
+        });
+
+        // --- MICRO-STEP 1: FETCH 2 (MAR -> Address Bus -> RAM + Control READ + Increment PC) ---
+        pc = pc + 1;
+        const nextPcStr = pad4(pc);
+        steps.push({
+          stage: "FETCH",
+          microIdx: 1,
+          cycle,
+          title: `Cycle ${cycle} — Fetch (2/3): Send Address ${mar} on Address Bus & Increment PC`,
+          desc: `MAR sends ${mar} along the one-way Address Bus to RAM while the Control Unit sends a READ signal on the Control Bus. Meanwhile, PC increments to ${nextPcStr}.`,
+          tip: "Mark Scheme: 'The address is sent along the Address Bus, a Read signal is sent on the Control Bus, and the PC increments by 1.'",
+          calloutTarget: "bus-addr-pill",
+          calloutText: `Address ${mar} travels to RAM; PC increments to ${nextPcStr}.`,
+          state: { pc: nextPcStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") || "Ready" },
+          spotlights: { mar: "FETCH", pc: "FETCH", ramRow: mar, ramPhase: "FETCH" },
+          updatedReg: "reg-pc",
+          activeBuses: { addr: "forward", ctrl: "forward" },
+          cuText: "Control: READ",
+          aluText: "Idle",
+          cacheText: "Miss → RAM",
+          ctrlSignal: "MEMORY READ",
+          packet: { from: "reg-mar", to: `ram-row-${mar}`, text: mar, color: "#7c3aed", curve: -36 }
+        });
+
+        // --- MICRO-STEP 2: FETCH 3 (RAM -> Data Bus -> MDR) ---
+        mdr = instr;
+        steps.push({
+          stage: "FETCH",
+          microIdx: 2,
+          cycle,
+          title: `Cycle ${cycle} — Fetch (3/3): Transfer "${instr}" from RAM into MDR`,
+          desc: `Main Memory (RAM) places the instruction "${instr}" from address ${mar} onto the bi-directional Data Bus, loading it into the Memory Data Register (MDR).`,
+          tip: "Mark Scheme: 'The instruction stored at that address is transferred along the Data Bus into the MDR.'",
+          calloutTarget: "reg-mdr",
+          calloutText: `Instruction "${instr}" arrives via the Data Bus into MDR.`,
+          state: { pc: nextPcStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") || "Ready" },
+          spotlights: { mdr: "FETCH", ramRow: mar, ramPhase: "FETCH" },
+          updatedReg: "reg-mdr",
+          activeBuses: { data: "backward" },
+          cuText: "Receiving Instr",
+          aluText: "Idle",
+          cacheText: "Cached " + instr,
+          ctrlSignal: "DATA TRANSFER",
+          packet: { from: `ram-row-${mar}`, to: "reg-mdr", text: instr, color: "#0284c7", curve: 36 }
+        });
+
+        // --- MICRO-STEP 3: DECODE (MDR -> Control Unit) ---
+        let decodeExplain = "";
+        if (opcode === "LDA") decodeExplain = `Load the number at RAM address ${targetAddrStr} into the Accumulator (ACC).`;
+        else if (opcode === "ADD") decodeExplain = `Add the number at RAM address ${targetAddrStr} to the Accumulator using the ALU.`;
+        else if (opcode === "SUB") decodeExplain = `Subtract the number at RAM address ${targetAddrStr} from the Accumulator using the ALU.`;
+        else if (opcode === "STA") decodeExplain = `Store the Accumulator's current value into RAM address ${targetAddrStr}.`;
+        else if (opcode === "OUT") decodeExplain = `Send the Accumulator's value to the Output screen.`;
+        else if (opcode === "BRP") decodeExplain = `Branch if Positive: if ACC ≥ 0, set PC to ${targetAddrStr}.`;
+        else if (opcode === "HLT") decodeExplain = `Halt: stop the CPU Fetch–Decode–Execute cycle.`;
+
+        steps.push({
+          stage: "DECODE",
+          microIdx: 3,
+          cycle,
+          title: `Cycle ${cycle} — Decode: Control Unit Decodes "${instr}"`,
+          desc: `The Control Unit (CU) inspects "${instr}" in the MDR, separating the opcode (${opcode})${targetAddrStr ? ` and operand (${targetAddrStr})` : ""}. Action: ${decodeExplain}`,
+          tip: "Mark Scheme: 'The Control Unit (CU) decodes the instruction to determine what operation needs to be carried out.'",
+          calloutTarget: "unit-cu",
+          calloutText: `CU decodes "${instr}" → ${decodeExplain}`,
+          state: { pc: nextPcStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") || "Ready" },
+          spotlights: { cu: "DECODE", mdr: "DECODE" },
+          cuText: `Decode: ${instr}`,
+          aluText: "Standby",
+          cacheText: "Ready",
+          ctrlSignal: "CU DECODE",
+          packet: { from: "reg-mdr", to: "unit-cu", text: instr, color: "#d97706", curve: -32 }
+        });
+
+        // --- MICRO-STEP 4: EXECUTE ---
+        if (opcode === "LDA") {
+          const valNum = parseInt(ram[targetIdx].val, 10);
+          mar = targetAddrStr;
+          mdr = pad4(valNum);
+          acc = valNum;
+          steps.push({
+            stage: "EXECUTE",
+            microIdx: 4,
+            cycle,
+            title: `Cycle ${cycle} — Execute (${instr}): Load ${pad4(valNum)} from RAM[${targetAddrStr}] into ACC`,
+            desc: `Address ${targetAddrStr} goes to MAR, value ${pad4(valNum)} is fetched via the Data Bus into MDR, and loaded into the Accumulator (ACC = ${pad4(acc)}).`,
+            tip: "Notice how MAR and MDR are used again during Execute whenever data must be fetched from RAM!",
+            calloutTarget: "reg-acc",
+            calloutText: `Value ${pad4(valNum)} fetched from RAM[${targetAddrStr}] into ACC!`,
+            state: { pc: nextPcStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") || "Ready" },
+            spotlights: { mar: "EXECUTE", mdr: "EXECUTE", acc: "EXECUTE", ramRow: targetAddrStr, ramPhase: "EXECUTE" },
+            updatedReg: "reg-acc",
+            activeBuses: { addr: "forward", data: "backward", ctrl: "forward" },
+            cuText: `Exec: ${instr}`,
+            aluText: `Pass ${pad4(acc)}`,
+            cacheText: "Data Read",
+            ctrlSignal: "MEMORY READ",
+            packet: { from: `ram-row-${targetAddrStr}`, to: "reg-acc", text: pad4(valNum), color: "#059669", curve: 42 }
+          });
+        } else if (opcode === "ADD" || opcode === "SUB") {
+          const valNum = parseInt(ram[targetIdx].val, 10);
+          const prevAcc = acc;
+          mar = targetAddrStr;
+          mdr = pad4(valNum);
+          acc = opcode === "ADD" ? prevAcc + valNum : prevAcc - valNum;
+          const opSymbol = opcode === "ADD" ? "+" : "−";
+
+          steps.push({
+            stage: "EXECUTE",
+            microIdx: 4,
+            cycle,
+            title: `Cycle ${cycle} — Execute (${instr}): ALU computes ${pad4(prevAcc)} ${opSymbol} ${pad4(valNum)} = ${pad4(acc)}`,
+            desc: `Operand ${pad4(valNum)} is fetched from RAM[${targetAddrStr}] into MDR. The ALU performs ${prevAcc} ${opSymbol} ${valNum} and stores the result (${pad4(acc)}) in the Accumulator.`,
+            tip: "Mark Scheme: 'The ALU carries out the arithmetic calculation and stores the result in the Accumulator (ACC).'",
+            calloutTarget: "unit-alu",
+            calloutText: `ALU calculates ${prevAcc} ${opSymbol} ${valNum} = ${acc} → stored in ACC!`,
+            state: { pc: nextPcStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") || "Ready" },
+            spotlights: { alu: "EXECUTE", acc: "EXECUTE", mdr: "EXECUTE", ramRow: targetAddrStr, ramPhase: "EXECUTE" },
+            updatedReg: "reg-acc",
+            aluSpark: true,
+            activeBuses: { data: "backward", ctrl: "forward" },
+            cuText: `Exec: ${instr}`,
+            aluText: `${prevAcc} ${opSymbol} ${valNum} = ${acc}`,
+            cacheText: "Data Read",
+            ctrlSignal: "ALU OP + READ",
+            packet: { from: "unit-alu", to: "reg-acc", text: pad4(acc), color: "#059669", curve: 30 }
+          });
+        } else if (opcode === "STA") {
+          mar = targetAddrStr;
+          mdr = pad4(acc);
+          ram[targetIdx].val = pad4(acc);
+
+          steps.push({
+            stage: "EXECUTE",
+            microIdx: 4,
+            cycle,
+            title: `Cycle ${cycle} — Execute (${instr}): Write ACC (${pad4(acc)}) into RAM[${targetAddrStr}]`,
+            desc: `MAR holds target address ${targetAddrStr}, MDR holds ${pad4(acc)} from the Accumulator, and the Data Bus writes ${pad4(acc)} into RAM[${targetAddrStr}] with a WRITE signal.`,
+            tip: "STA proves why the Data Bus is bi-directional: data flows from CPU (MDR) into Main Memory (RAM).",
+            calloutTarget: `ram-row-${targetAddrStr}`,
+            calloutText: `Data Bus writes ${pad4(acc)} into RAM address ${targetAddrStr}!`,
+            state: { pc: nextPcStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") || "Ready" },
+            spotlights: { acc: "EXECUTE", mar: "EXECUTE", mdr: "EXECUTE", ramRow: targetAddrStr, ramPhase: "EXECUTE" },
+            activeBuses: { addr: "forward", data: "forward", ctrl: "forward" },
+            cuText: `Exec: ${instr}`,
+            aluText: "Idle",
+            cacheText: "Write-Through",
+            ctrlSignal: "MEMORY WRITE",
+            packet: { from: "reg-mdr", to: `ram-row-${targetAddrStr}`, text: pad4(acc), color: "#059669", curve: -34 }
+          });
+        } else if (opcode === "OUT") {
+          outList.push(pad4(acc));
+          steps.push({
+            stage: "EXECUTE",
+            microIdx: 4,
+            cycle,
+            title: `Cycle ${cycle} — Execute (OUT): Send Accumulator (${pad4(acc)}) to Output`,
+            desc: `The Control Unit copies the value currently stored in the Accumulator (${pad4(acc)}) to the Output screen without altering ACC.`,
+            tip: "OUT outputs the contents of the Accumulator to the user display.",
+            calloutTarget: "output-display",
+            calloutText: `Accumulator sends ${pad4(acc)} to the Output Screen!`,
+            state: { pc: nextPcStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") },
+            spotlights: { acc: "EXECUTE", cu: "EXECUTE" },
+            cuText: "Exec: OUT",
+            aluText: "Idle",
+            cacheText: "Ready",
+            ctrlSignal: "I/O OUTPUT",
+            packet: { from: "reg-acc", to: "output-display", text: pad4(acc), color: "#059669", curve: 38 }
+          });
+        } else if (opcode === "BRP") {
+          const takeBranch = acc >= 0;
+          if (takeBranch) pc = targetIdx;
+          const finalPc = pad4(pc);
+          steps.push({
+            stage: "EXECUTE",
+            microIdx: 4,
+            cycle,
+            title: takeBranch
+              ? `Cycle ${cycle} — Execute (BRP): ACC (${acc}) ≥ 0 → Jump! PC set to ${finalPc}`
+              : `Cycle ${cycle} — Execute (BRP): ACC (${acc}) < 0 → Continue at ${finalPc}`,
+            desc: takeBranch
+              ? `The ALU tests if ACC (${acc}) ≥ 0. Since it is TRUE, the Control Unit overwrites the Program Counter (PC) with ${finalPc} to repeat the loop!`
+              : `The ALU tests if ACC (${acc}) ≥ 0. Since it is FALSE, the branch is skipped and PC remains ${finalPc}.`,
+            tip: "Conditional branch instructions work by overwriting the Program Counter (PC) with a new address.",
+            calloutTarget: "reg-pc",
+            calloutText: takeBranch ? `ACC ≥ 0 is TRUE! PC jumps to ${finalPc}.` : `ACC ≥ 0 is FALSE. PC stays ${finalPc}.`,
+            state: { pc: finalPc, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: outList.join(", ") || "Ready" },
+            spotlights: { alu: "EXECUTE", pc: "EXECUTE", acc: "EXECUTE" },
+            updatedReg: takeBranch ? "reg-pc" : null,
+            aluSpark: true,
+            cuText: takeBranch ? `Branch → ${finalPc}` : "No Branch",
+            aluText: `Test ${acc} >= 0 (${takeBranch ? "YES" : "NO"})`,
+            cacheText: "Ready",
+            ctrlSignal: "PC OVERWRITE",
+            packet: takeBranch ? { from: "unit-cu", to: "reg-pc", text: finalPc, color: "#059669", curve: -26 } : null
+          });
+        } else if (opcode === "HLT") {
+          halted = true;
+          steps.push({
+            stage: "EXECUTE",
+            microIdx: 4,
+            cycle,
+            title: `Cycle ${cycle} — Execute (HLT): Program Complete!`,
+            desc: `The Control Unit executes HLT and stops the Fetch–Decode–Execute cycle. Final Accumulator = ${pad4(acc)}.`,
+            tip: "Click Reset or pick another program from the toolbar to watch the cycle again.",
+            calloutTarget: "unit-cu",
+            calloutText: "HLT reached — CPU stops the Fetch–Decode–Execute cycle.",
+            state: { pc: nextPcStr, mar, mdr, acc: pad4(acc), ram: cloneRam(ram), out: (outList.join(", ") || "None") + " [HALTED]" },
+            spotlights: { cu: "EXECUTE" },
+            cuText: "HALTED",
+            aluText: "Idle",
+            cacheText: "Idle",
+            ctrlSignal: "HALT",
+            packet: null
+          });
+        }
+
+        cycle++;
+      }
+
+      return steps;
+    }
+
+    /* ========================================================================
+       4. RENDERING, ANIMATED SVG TRACES, PACKETS & FLOATING CALLOUT
+       ======================================================================== */
+    let currentProg = "add";
+    let timeline = generateTimeline(currentProg);
+    let stepIndex = 0;
+    let isPlaying = true;
+    let playTimer = null;
+    let clockPhaseOffset = 0;
+
+    const PACE_MS = {
+      1: 2500, // Classroom (Slow)
+      2: 1550, // Normal
+      3: 850   // Fast
+    };
+
+    const elPlayBtn = document.getElementById("btn-play");
+    const elPrevBtn = document.getElementById("btn-prev");
+    const elNextBtn = document.getElementById("btn-next");
+    const elResetBtn = document.getElementById("btn-reset");
+    const elProgSelect = document.getElementById("program-select");
+    const elSpeedSlider = document.getElementById("speed-slider");
+    const elSpeedLabel = document.getElementById("speed-label");
+
+    function pulseSystemClock(stage, cycle) {
+      const led = document.getElementById("clock-led");
+      const readout = document.getElementById("clock-tick-readout");
+      const wavePath = document.getElementById("clock-wave-path");
+
+      const colorMap = {
+        FETCH: "#38bdf8",
+        DECODE: "#fbbf24",
+        EXECUTE: "#34d399"
+      };
+      const c = colorMap[stage] || "#38bdf8";
+
+      led.style.backgroundColor = c;
+      led.style.boxShadow = `0 0 10px ${c}`;
+      led.classList.add("pulse");
+      setTimeout(() => led.classList.remove("pulse"), 240);
+
+      readout.textContent = `CYCLE ${cycle} • ${stage}`;
+      readout.style.color = c;
+
+      // Animate square clock wave shift
+      clockPhaseOffset = (clockPhaseOffset + 15) % 30;
+      wavePath.setAttribute("stroke", c);
+      wavePath.setAttribute("transform", `translate(-${clockPhaseOffset}, 0)`);
+    }
+
+    function renderStep(idx) {
+      const step = timeline[idx];
+      if (!step) return;
+
+      pulseSystemClock(step.stage, step.cycle);
+
+      elPrevBtn.disabled = idx === 0;
+      elNextBtn.disabled = idx === timeline.length - 1;
+
+      // Phase Pills
+      ["FETCH", "DECODE", "EXECUTE"].forEach(st => {
+        const pill = document.getElementById(`pill-${st}`);
+        pill.className = "phase-pill" + (step.stage === st ? ` active-${st}` : "");
+      });
+
+      // Micro-step timeline bar
+      document.querySelectorAll("#micro-timeline .m-step").forEach((el, mIdx) => {
+        el.classList.remove("active", "done");
+        if (mIdx < step.microIdx) el.classList.add("done");
+        else if (mIdx === step.microIdx) el.classList.add("active");
+      });
+
+      // Register Values
+      document.getElementById("val-pc").textContent = step.state.pc;
+      document.getElementById("val-mar").textContent = step.state.mar;
+      document.getElementById("val-mdr").textContent = step.state.mdr;
+      document.getElementById("val-acc").textContent = step.state.acc;
+
+      document.getElementById("cu-readout").textContent = step.cuText;
+      document.getElementById("alu-readout").textContent = step.aluText;
+      document.getElementById("cache-readout").textContent = step.cacheText;
+      document.getElementById("ctrl-signal-text").textContent = step.ctrlSignal;
+      document.getElementById("output-display").textContent = step.state.out;
+
+      // ALU Spark
+      const spark = document.getElementById("alu-spark");
+      if (step.aluSpark) spark.classList.add("active");
+      else spark.classList.remove("active");
+
+      // Clear & Apply Spotlights
+      const allSpotlightIds = ["reg-pc", "reg-mar", "reg-mdr", "reg-acc", "unit-cu", "unit-alu", "unit-cache"];
+      allSpotlightIds.forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove("spotlight-FETCH", "spotlight-DECODE", "spotlight-EXECUTE", "value-updated");
+      });
+
+      const sp = step.spotlights || {};
+      if (sp.pc) document.getElementById("reg-pc").classList.add(`spotlight-${sp.pc}`);
+      if (sp.mar) document.getElementById("reg-mar").classList.add(`spotlight-${sp.mar}`);
+      if (sp.mdr) document.getElementById("reg-mdr").classList.add(`spotlight-${sp.mdr}`);
+      if (sp.acc) document.getElementById("reg-acc").classList.add(`spotlight-${sp.acc}`);
+      if (sp.cu) document.getElementById("unit-cu").classList.add(`spotlight-${sp.cu}`);
+      if (sp.alu) document.getElementById("unit-alu").classList.add(`spotlight-${sp.alu}`);
+
+      if (step.updatedReg) {
+        const uEl = document.getElementById(step.updatedReg);
+        if (uEl) {
+          void uEl.offsetWidth; // trigger reflow for restart
+          uEl.classList.add("value-updated");
+        }
+      }
+
+      // Bus Pill Highlights
+      const addrPill = document.getElementById("bus-addr-pill");
+      const dataPill = document.getElementById("bus-data-pill");
+      const ctrlPill = document.getElementById("bus-ctrl-pill");
+      addrPill.classList.remove("active-addr");
+      dataPill.classList.remove("active-data");
+      ctrlPill.classList.remove("active-ctrl");
+
+      const buses = step.activeBuses || {};
+      if (buses.addr) addrPill.classList.add("active-addr");
+      if (buses.data) dataPill.classList.add("active-data");
+      if (buses.ctrl) ctrlPill.classList.add("active-ctrl");
+
+      // Render RAM Rows
+      const tbody = document.getElementById("ram-tbody");
+      tbody.innerHTML = "";
+      step.state.ram.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.className = "ram-cell-row";
+        tr.id = `ram-row-${row.addr}`;
+        if (sp.ramRow === row.addr) {
+          tr.classList.add(`ram-hit-${sp.ramPhase || step.stage}`);
+        }
+        tr.innerHTML = `
+          <td class="col-addr">${row.addr}</td>
+          <td class="col-val">${row.val}</td>
+          <td class="col-type">${row.note}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Narration Strip
+      document.getElementById("narration-title").textContent = step.title;
+      document.getElementById("narration-desc").textContent = step.desc;
+      document.getElementById("ocr-tip-text").textContent = step.tip;
+
+      const badgeColor = step.stage === "FETCH" ? "var(--fetch-primary)"
+                       : step.stage === "DECODE" ? "var(--decode-primary)"
+                       : "var(--execute-primary)";
+      document.getElementById("ocr-exam-badge").style.borderLeftColor = badgeColor;
+
+      // Position Floating Callout & Render Animated SVG Circuit Traces
+      requestAnimationFrame(() => {
+        positionCallout(step);
+        renderCircuitSvg(step);
+      });
+    }
+
+    function positionCallout(step) {
+      const board = document.getElementById("schematic-board");
+      const callout = document.getElementById("floating-callout");
+      const tag = document.getElementById("callout-tag");
+      const text = document.getElementById("callout-text");
+
+      const stageColor = step.stage === "FETCH" ? "#0284c7"
+                       : step.stage === "DECODE" ? "#d97706"
+                       : "#059669";
+
+      callout.style.borderColor = stageColor;
+      tag.style.backgroundColor = stageColor;
+      tag.textContent = step.stage;
+      text.textContent = step.calloutText;
+
+      const targetEl = document.getElementById(step.calloutTarget) || document.getElementById("reg-pc");
+      const bRect = board.getBoundingClientRect();
+      const tRect = targetEl.getBoundingClientRect();
+
+      const centerX = tRect.left - bRect.left + tRect.width / 2;
+      const topY = tRect.top - bRect.top - callout.offsetHeight - 12;
+
+      const clampedLeft = Math.max(12, Math.min(bRect.width - callout.offsetWidth - 12, centerX - callout.offsetWidth / 2));
+      const clampedTop = Math.max(8, topY);
+
+      callout.style.left = `${clampedLeft}px`;
+      callout.style.top = `${clampedTop}px`;
+    }
+
+    function renderCircuitSvg(step) {
+      const svg = document.getElementById("circuit-svg");
+      const board = document.getElementById("schematic-board");
+      const bRect = board.getBoundingClientRect();
+
+      svg.innerHTML = "";
+
+      // Draw continuous system bus traces between CPU and RAM on wide screens
+      if (window.innerWidth > 960) {
+        const cpuRect = document.getElementById("cpu-enclosure").getBoundingClientRect();
+        const ramRect = document.getElementById("ram-enclosure").getBoundingClientRect();
+
+        const xStart = cpuRect.right - bRect.left;
+        const xEnd = ramRect.left - bRect.left;
+
+        const addrY = document.getElementById("bus-addr-pill").getBoundingClientRect().top + 22 - bRect.top;
+        const dataY = document.getElementById("bus-data-pill").getBoundingClientRect().top + 22 - bRect.top;
+        const ctrlY = document.getElementById("bus-ctrl-pill").getBoundingClientRect().top + 22 - bRect.top;
+
+        const buses = step.activeBuses || {};
+
+        drawBusTrace(svg, xStart, addrY, xEnd, addrY, "#7c3aed", buses.addr, false);
+        drawBusTrace(svg, xStart, dataY, xEnd, dataY, "#0284c7", buses.data, true);
+        drawBusTrace(svg, xStart, ctrlY, xEnd, ctrlY, "#e11d48", buses.ctrl, true);
+      }
+
+      // Draw curved SVG trajectory & smooth gliding glowing packet
+      if (step.packet) {
+        const fromEl = document.getElementById(step.packet.from);
+        const toEl = document.getElementById(step.packet.to);
+        if (fromEl && toEl) {
+          const r1 = fromEl.getBoundingClientRect();
+          const r2 = toEl.getBoundingClientRect();
+
+          const x1 = r1.left - bRect.left + r1.width / 2;
+          const y1 = r1.top - bRect.top + r1.height / 2;
+          const x2 = r2.left - bRect.left + r2.width / 2;
+          const y2 = r2.top - bRect.top + r2.height / 2;
+
+          const midX = (x1 + x2) / 2;
+          const midY = (y1 + y2) / 2 + (step.packet.curve || -30);
+
+          const pathD = `M ${x1} ${y1} Q ${midX} ${midY} ${x2} ${y2}`;
+          const trail = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          trail.setAttribute("d", pathD);
+          trail.setAttribute("fill", "none");
+          trail.setAttribute("stroke", step.packet.color);
+          trail.setAttribute("stroke-width", "3");
+          trail.setAttribute("stroke-dasharray", "6 6");
+          trail.setAttribute("stroke-opacity", "0.65");
+          trail.classList.add("bus-flow-forward");
+          svg.appendChild(trail);
+
+          glidePacketAlongQuadratic(svg, x1, y1, midX, midY, x2, y2, step.packet.text, step.packet.color);
+        }
+      }
+    }
+
+    function drawBusTrace(svg, x1, y1, x2, y2, color, flowDir, biDirectional) {
+      // Base track
+      const base = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      base.setAttribute("x1", x1);
+      base.setAttribute("y1", y1);
+      base.setAttribute("x2", x2);
+      base.setAttribute("y2", y2);
+      base.setAttribute("stroke", color);
+      base.setAttribute("stroke-width", flowDir ? "5" : "2.5");
+      base.setAttribute("stroke-opacity", flowDir ? "0.25" : "0.22");
+      svg.appendChild(base);
+
+      // Animated electrical dashes when active
+      if (flowDir) {
+        const flow = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        flow.setAttribute("x1", x1);
+        flow.setAttribute("y1", y1);
+        flow.setAttribute("x2", x2);
+        flow.setAttribute("y2", y2);
+        flow.setAttribute("stroke", color);
+        flow.setAttribute("stroke-width", "4");
+        flow.setAttribute("stroke-dasharray", "10 4");
+        flow.classList.add(flowDir === "backward" ? "bus-flow-backward" : "bus-flow-forward");
+        svg.appendChild(flow);
+      }
+
+      // Arrowheads
+      const rightArrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      rightArrow.setAttribute("points", `${x2},${y2} ${x2 - 10},${y2 - 6} ${x2 - 10},${y2 + 6}`);
+      rightArrow.setAttribute("fill", color);
+      svg.appendChild(rightArrow);
+
+      if (biDirectional) {
+        const leftArrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        leftArrow.setAttribute("points", `${x1},${y1} ${x1 + 10},${y1 - 6} ${x1 + 10},${y1 + 6}`);
+        leftArrow.setAttribute("fill", color);
+        svg.appendChild(leftArrow);
+      }
+    }
+
+    function glidePacketAlongQuadratic(svg, x1, y1, cx, cy, x2, y2, labelText, color) {
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const w = Math.max(58, labelText.length * 8.5 + 20);
+      const h = 26;
+
+      // Outer glow halo
+      const halo = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      halo.setAttribute("x", -w / 2 - 4);
+      halo.setAttribute("y", -h / 2 - 4);
+      halo.setAttribute("width", w + 8);
+      halo.setAttribute("height", h + 8);
+      halo.setAttribute("rx", 16);
+      halo.setAttribute("fill", color);
+      halo.setAttribute("fill-opacity", "0.28");
+
+      const pill = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      pill.setAttribute("x", -w / 2);
+      pill.setAttribute("y", -h / 2);
+      pill.setAttribute("width", w);
+      pill.setAttribute("height", h);
+      pill.setAttribute("rx", 13);
+      pill.setAttribute("fill", "#0f172a");
+      pill.setAttribute("stroke", color);
+      pill.setAttribute("stroke-width", "2.5");
+
+      const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      txt.setAttribute("x", 0);
+      txt.setAttribute("y", 4.5);
+      txt.setAttribute("text-anchor", "middle");
+      txt.setAttribute("fill", "#ffffff");
+      txt.setAttribute("font-family", "monospace");
+      txt.setAttribute("font-size", "12");
+      txt.setAttribute("font-weight", "800");
+      txt.textContent = labelText;
+
+      g.appendChild(halo);
+      g.appendChild(pill);
+      g.appendChild(txt);
+      svg.appendChild(g);
+
+      const duration = 680;
+      const t0 = performance.now();
+
+      function animateFrame(now) {
+        const rawT = Math.min(1, (now - t0) / duration);
+        const t = rawT < 0.5 ? 4 * rawT * rawT * rawT : 1 - Math.pow(-2 * rawT + 2, 3) / 2;
+
+        // Quadratic Bezier interpolation
+        const inv = 1 - t;
+        const px = inv * inv * x1 + 2 * inv * t * cx + t * t * x2;
+        const py = inv * inv * y1 + 2 * inv * t * cy + t * t * y2;
+
+        g.setAttribute("transform", `translate(${px}, ${py})`);
+        if (rawT < 1) {
+          requestAnimationFrame(animateFrame);
+        } else {
+          // Spawn arrival ripple ring
+          spawnArrivalRipple(svg, x2, y2, color);
+        }
+      }
+      requestAnimationFrame(animateFrame);
+    }
+
+    function spawnArrivalRipple(svg, x, y, color) {
+      const ring = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      ring.setAttribute("cx", x);
+      ring.setAttribute("cy", y);
+      ring.setAttribute("r", "6");
+      ring.setAttribute("fill", "none");
+      ring.setAttribute("stroke", color);
+      ring.setAttribute("stroke-width", "3");
+      svg.appendChild(ring);
+
+      const start = performance.now();
+      function expand(now) {
+        const p = Math.min(1, (now - start) / 420);
+        ring.setAttribute("r", String(6 + p * 26));
+        ring.setAttribute("stroke-opacity", String(1 - p));
+        if (p < 1) requestAnimationFrame(expand);
+        else ring.remove();
+      }
+      requestAnimationFrame(expand);
+    }
+
+    /* ========================================================================
+       5. CINEMATIC AUTO-PLAY & INTERACTIVE EVENT BINDINGS
+       ======================================================================== */
+    function startCinematicLoop() {
+      stopCinematicLoop();
+      isPlaying = true;
+      elPlayBtn.textContent = "⏸ Pause Cinematic";
+      elPlayBtn.classList.add("playing");
+
+      const delay = PACE_MS[elSpeedSlider.value];
+      playTimer = setInterval(() => {
+        if (stepIndex < timeline.length - 1) {
+          stepIndex++;
+          renderStep(stepIndex);
+        } else {
+          // Loop seamlessly back to cycle 1 after a brief pause
+          stepIndex = 0;
+          renderStep(0);
+        }
+      }, delay);
+    }
+
+    function stopCinematicLoop() {
+      isPlaying = false;
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+      }
+      elPlayBtn.textContent = "▶ Play Cinematic";
+      elPlayBtn.classList.remove("playing");
+    }
+
+    elPlayBtn.addEventListener("click", () => {
+      if (isPlaying) stopCinematicLoop();
+      else startCinematicLoop();
+    });
+
+    elNextBtn.addEventListener("click", () => {
+      stopCinematicLoop();
+      if (stepIndex < timeline.length - 1) {
+        stepIndex++;
+        renderStep(stepIndex);
+      }
+    });
+
+    elPrevBtn.addEventListener("click", () => {
+      stopCinematicLoop();
+      if (stepIndex > 0) {
+        stepIndex--;
+        renderStep(stepIndex);
+      }
+    });
+
+    elResetBtn.addEventListener("click", () => {
+      stepIndex = 0;
+      renderStep(0);
+      if (isPlaying) startCinematicLoop();
+    });
+
+    elProgSelect.addEventListener("change", (e) => {
+      currentProg = e.target.value;
+      timeline = generateTimeline(currentProg);
+      stepIndex = 0;
+      renderStep(0);
+      if (isPlaying) startCinematicLoop();
+    });
+
+    elSpeedSlider.addEventListener("input", () => {
+      const labels = { 1: "Classroom (Slow)", 2: "Normal", 3: "Fast" };
+      elSpeedLabel.textContent = labels[elSpeedSlider.value];
+      if (isPlaying) startCinematicLoop();
+    });
+
+    // Collapsible Bottom Reference Strip
+    const elDrawerToggle = document.getElementById("drawer-toggle");
+    const elDrawerContent = document.getElementById("drawer-content");
+    const elDrawerArrow = document.getElementById("drawer-arrow");
+    elDrawerToggle.addEventListener("click", () => {
+      const open = elDrawerContent.classList.toggle("open");
+      elDrawerArrow.textContent = open ? "▲ Hide" : "▼ Show";
+      requestAnimationFrame(() => renderCircuitSvg(timeline[stepIndex]));
+    });
+
+    // Click-to-Inspect Component Modal
+    const elInspModal = document.getElementById("inspector-modal");
+    document.querySelectorAll("[data-inspect]").forEach(el => {
+      el.addEventListener("click", () => {
+        const key = el.getAttribute("data-inspect");
+        const def = OCR_DEFINITIONS[key];
+        if (!def) return;
+        document.getElementById("insp-heading").textContent = def.title;
+        document.getElementById("insp-text").textContent = def.text;
+        elInspModal.classList.add("open");
+      });
+    });
+
+    ["insp-close", "insp-ok"].forEach(id => {
+      document.getElementById(id).addEventListener("click", () => elInspModal.classList.remove("open"));
+    });
+    elInspModal.addEventListener("click", (e) => {
+      if (e.target === elInspModal) elInspModal.classList.remove("open");
+    });
+
+    window.addEventListener("resize", () => {
+      positionCallout(timeline[stepIndex]);
+      renderCircuitSvg(timeline[stepIndex]);
+    });
+
+    // Boot immediately into Cinematic Auto-Play
+    renderStep(0);
+    startCinematicLoop();
+  </script>
+</body>
+</html>
