@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Whiteboard Quick-Fire Questions — Computing Knowledge Organisers</title>
+<style>
+  :root{
+    --navy:#1E2761;
+    --bg:#F4F7FB;
+    --line:#D7DEEA;
+    --text:#1a1f36;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:Calibri, 'Segoe UI', Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+    padding:32px;
+    line-height:1.4;
+  }
+  h1{
+    text-align:center;
+    color:var(--navy);
+    font-size:28px;
+    margin-bottom:4px;
+  }
+  p.sub{
+    text-align:center;
+    margin-top:0;
+    margin-bottom:32px;
+    color:#3a4468;
+    font-size:15px;
+  }
+  h2{
+    color:#fff;
+    background:var(--navy);
+    padding:10px 16px;
+    border-radius:6px;
+    font-size:19px;
+    margin-top:40px;
+    margin-bottom:12px;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    background:#fff;
+    border:1px solid var(--line);
+    margin-bottom:8px;
+  }
+  th, td{
+    border:1px solid var(--line);
+    padding:9px 12px;
+    text-align:left;
+    vertical-align:top;
+    font-size:14.5px;
+  }
+  th{
+    background:#E7ECF6;
+    color:var(--navy);
+    font-weight:bold;
+  }
+  td.num{
+    width:36px;
+    text-align:center;
+    font-weight:bold;
+    color:var(--navy);
+  }
+  td.type{
+    width:90px;
+    color:#3a4468;
+  }
+  td.answer{
+    width:220px;
+    font-weight:bold;
+    color:#155724;
+  }
+  tr:nth-child(even) td{background:#FAFCFF;}
+  .toc{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:18px 24px;
+    max-width:720px;
+    margin:0 auto 24px auto;
+  }
+  .toc h3{margin-top:0;color:var(--navy);}
+  .toc ol{margin:0; padding-left:20px; columns:2; column-gap:24px;}
+  .toc li{margin-bottom:4px; font-size:14.5px;}
+  @media print{
+    body{padding:8px;}
+    h2{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    th{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+
+<h1>Whiteboard Quick-Fire Questions</h1>
+<p class="sub">10 questions per topic — mix of A/B/C, True/False, and short-answer, for mini-whiteboard use across the Computing Knowledge Organisers</p>
+
+<div class="toc">
+<h3>Contents</h3>
+<ol>
+<li>Hardware and Software</li>
+<li>Artificial Intelligence and Machine Learning</li>
+<li>Binary and Data Representation</li>
+<li>Control Systems using Flowol</li>
+<li>Digital Literacy &amp; Media Creation</li>
+<li>Digital Literacy and Programming</li>
+<li>E-Safety &amp; Digital Literacy</li>
+<li>E-Safety and Cybersecurity</li>
+<li>E-Safety</li>
+<li>Introduction to Python Coding with EduBlocks</li>
+<li>Introduction to Python</li>
+<li>Algorithms and Programming Concepts</li>
+<li>Topic 3 Programming (Python and EduBlocks)</li>
+<li>System Security</li>
+<li>Interactive Multimedia</li>
+</ol>
+</div>
+
+<!-- 1. HARDWARE AND SOFTWARE -->
+<h2>1. Hardware and Software</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>Is a keyboard an input device, output device, or hybrid device?</td><td class="type">A/B/C</td><td class="answer">Input device</td></tr>
+<tr><td class="num">2</td><td>True or False: Software is something you can physically touch.</td><td class="type">T/F</td><td class="answer">False (it's intangible)</td></tr>
+<tr><td class="num">3</td><td>Which component is known as the "brain" of the computer: A) RAM B) CPU C) PSU?</td><td class="type">A/B/C</td><td class="answer">B) CPU</td></tr>
+<tr><td class="num">4</td><td>Name the component that temporarily holds programs and data currently in use.</td><td class="type">Short answer</td><td class="answer">RAM</td></tr>
+<tr><td class="num">5</td><td>True or False: A touchscreen is a hybrid device.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">6</td><td>Which is the main circuit board connecting all internal components: A) GPU B) SSD C) Motherboard?</td><td class="type">A/B/C</td><td class="answer">C) Motherboard</td></tr>
+<tr><td class="num">7</td><td>Name the three stages of the Information Processing Model.</td><td class="type">Short answer</td><td class="answer">Input, Process, Output</td></tr>
+<tr><td class="num">8</td><td>True or False: A LAN covers a wider area than a WAN.</td><td class="type">T/F</td><td class="answer">False (WAN is wider)</td></tr>
+<tr><td class="num">9</td><td>Which device converts mains electricity into safe power for internal parts: A) PSU B) GPU C) HDD?</td><td class="type">A/B/C</td><td class="answer">A) PSU</td></tr>
+<tr><td class="num">10</td><td>Give one environmental problem caused by e-waste.</td><td class="type">Short answer</td><td class="answer">e.g. toxic pollution / rare earth depletion / dangerous mining</td></tr>
+</table>
+
+<!-- 2. AI AND MACHINE LEARNING -->
+<h2>2. Artificial Intelligence and Machine Learning</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>True or False: Machine Learning systems are directly programmed by a human for every decision.</td><td class="type">T/F</td><td class="answer">False (they learn from data)</td></tr>
+<tr><td class="num">2</td><td>Which of these tests checks if a machine's behaviour is indistinguishable from a human: A) Binary Test B) Turing Test C) CAPTCHA?</td><td class="type">A/B/C</td><td class="answer">B) Turing Test</td></tr>
+<tr><td class="num">3</td><td>Name the large collection of examples used to teach a machine learning system.</td><td class="type">Short answer</td><td class="answer">Training data</td></tr>
+<tr><td class="num">4</td><td>True or False: Bias in AI can come from unbalanced training data.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which unit is used to store image/colour data as computer information: A) Words B) Bits C) Pixels only?</td><td class="type">A/B/C</td><td class="answer">B) Bits</td></tr>
+<tr><td class="num">6</td><td>Give one real-world example of AI mentioned in the unit.</td><td class="type">Short answer</td><td class="answer">e.g. self-driving cars / face scanners / spam filters</td></tr>
+<tr><td class="num">7</td><td>True or False: Sentiment analysis is used to detect the emotion/opinion in a piece of text.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which logic allows answers to be somewhere between true and false: A) Boolean Logic B) Fuzzy Logic C) Binary Logic?</td><td class="type">A/B/C</td><td class="answer">B) Fuzzy Logic</td></tr>
+<tr><td class="num">9</td><td>Name the tool used in this unit to build a chatbot and shape scanner.</td><td class="type">Short answer</td><td class="answer">Scratch</td></tr>
+<tr><td class="num">10</td><td>Give one way automation/AI might affect human jobs.</td><td class="type">Short answer</td><td class="answer">e.g. replacing repetitive roles / changing required skills</td></tr>
+</table>
+
+<!-- 3. BINARY AND DATA REPRESENTATION -->
+<h2>3. Binary and Data Representation</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>True or False: A byte is made up of 8 bits.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">2</td><td>Which number base is binary: A) Base 2 B) Base 10 C) Base 16?</td><td class="type">A/B/C</td><td class="answer">A) Base 2</td></tr>
+<tr><td class="num">3</td><td>Name the number system that uses symbols 0-9 and A-F.</td><td class="type">Short answer</td><td class="answer">Hexadecimal</td></tr>
+<tr><td class="num">4</td><td>True or False: A left binary shift divides a number.</td><td class="type">T/F</td><td class="answer">False (it multiplies)</td></tr>
+<tr><td class="num">5</td><td>Which character set can represent 128 symbols: A) Unicode B) ASCII C) Hexadecimal?</td><td class="type">A/B/C</td><td class="answer">B) ASCII</td></tr>
+<tr><td class="num">6</td><td>Why was Unicode invented?</td><td class="type">Short answer</td><td class="answer">To represent many more languages/symbols/emojis than ASCII could</td></tr>
+<tr><td class="num">7</td><td>True or False: A Kilobyte is bigger than a Gigabyte.</td><td class="type">T/F</td><td class="answer">False</td></tr>
+<tr><td class="num">8</td><td>What is the smallest unit of data a computer can use: A) Byte B) Bit C) Pixel?</td><td class="type">A/B/C</td><td class="answer">B) Bit</td></tr>
+<tr><td class="num">9</td><td>Name the smallest single dot of colour that makes up a digital image.</td><td class="type">Short answer</td><td class="answer">Pixel</td></tr>
+<tr><td class="num">10</td><td>True or False: Computers store everything using only two digits, 0 and 1.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+<!-- 4. CONTROL SYSTEMS USING FLOWOL -->
+<h2>4. Control Systems using Flowol</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>What is the name for an on-screen simulation of a real-world system in Flowol, such as a lighthouse: A) Mimic B) Module C) Model?</td><td class="type">A/B/C</td><td class="answer">A) Mimic</td></tr>
+<tr><td class="num">2</td><td>True or False: An input sends a signal into the control software from a sensor.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">3</td><td>Name the encapsulated section of code that can be repeatedly called by the main program.</td><td class="type">Short answer</td><td class="answer">Subroutine (sub)</td></tr>
+<tr><td class="num">4</td><td>True or False: An output sends an action command to hardware such as a lamp or motor.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which control structure repeats a sequence of tasks until a condition is met: A) Variable B) Loop C) Sub?</td><td class="type">A/B/C</td><td class="answer">B) Loop</td></tr>
+<tr><td class="num">6</td><td>Name the two sensor inputs used in the Level Crossing project.</td><td class="type">Short answer</td><td class="answer">Trip A and Trip B</td></tr>
+<tr><td class="num">7</td><td>True or False: A variable can store and change a numerical value while a program runs.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which project introduces day/night logic-based decisions: A) Traffic Lights/Lighthouse B) Greenhouse C) Zebra Crossing?</td><td class="type">A/B/C</td><td class="answer">A) Traffic Lights/Lighthouse</td></tr>
+<tr><td class="num">9</td><td>What is the process of finding and fixing errors in a control sequence called?</td><td class="type">Short answer</td><td class="answer">Debugging</td></tr>
+<tr><td class="num">10</td><td>True or False: The final assessment project is the Pelican Crossing.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+<!-- 5. DIGITAL LITERACY & MEDIA CREATION -->
+<h2>5. Digital Literacy &amp; Media Creation</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>True or False: The Copyright, Designs and Patents Act was passed in 1988.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">2</td><td>Which licensing system gives clear legal permission to share/build on work: A) Creative Commons B) Domain License C) Fair Use Act?</td><td class="type">A/B/C</td><td class="answer">A) Creative Commons</td></tr>
+<tr><td class="num">3</td><td>Name one advanced search operator you could use to filter results.</td><td class="type">Short answer</td><td class="answer">e.g. phrase match / site-specific / exclusion / date range / wildcard</td></tr>
+<tr><td class="num">4</td><td>True or False: A domain is a registered internet address like .com or .sch.uk.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which of these is a sign of possible fake news: A) Named author and sources B) No sources or witnesses C) Published on a known news domain?</td><td class="type">A/B/C</td><td class="answer">B) No sources or witnesses</td></tr>
+<tr><td class="num">6</td><td>Name the holiday destination researched for the promotional design project.</td><td class="type">Short answer</td><td class="answer">Lake Garda</td></tr>
+<tr><td class="num">7</td><td>True or False: Intellectual property can include books, songs, and software.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>What does the "context" of a search query help the search engine do: A) Speed up the internet B) Clarify what you're looking for C) Delete cookies?</td><td class="type">A/B/C</td><td class="answer">B) Clarify what you're looking for</td></tr>
+<tr><td class="num">9</td><td>Give one type of promotional product created in this unit.</td><td class="type">Short answer</td><td class="answer">e.g. business card / brochure / flyer</td></tr>
+<tr><td class="num">10</td><td>True or False: Copying an image from the internet is always legal as long as you credit the source.</td><td class="type">T/F</td><td class="answer">False</td></tr>
+</table>
+
+<!-- 6. DIGITAL LITERACY AND PROGRAMMING -->
+<h2>6. Digital Literacy and Programming</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>Which keyboard shortcut is used to Undo: A) Ctrl+C B) Ctrl+Z C) Ctrl+V?</td><td class="type">A/B/C</td><td class="answer">B) Ctrl+Z</td></tr>
+<tr><td class="num">2</td><td>True or False: Computer Science is the study of how telecom hardware transmits data.</td><td class="type">T/F</td><td class="answer">False (that's IT)</td></tr>
+<tr><td class="num">3</td><td>Name the four parts of computational thinking.</td><td class="type">Short answer</td><td class="answer">Decomposition, pattern recognition, abstraction, algorithms</td></tr>
+<tr><td class="num">4</td><td>True or False: Abstraction means hiding unnecessary detail.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which term describes breaking a big problem into smaller parts: A) Abstraction B) Decomposition C) Iteration?</td><td class="type">A/B/C</td><td class="answer">B) Decomposition</td></tr>
+<tr><td class="num">6</td><td>Name a device used to direct data packets across a network.</td><td class="type">Short answer</td><td class="answer">Router</td></tr>
+<tr><td class="num">7</td><td>True or False: The World Wide Web and the Internet mean exactly the same thing.</td><td class="type">T/F</td><td class="answer">False (Web = linked pages; Internet = physical network)</td></tr>
+<tr><td class="num">8</td><td>Which language is used to define web pages: A) Python B) HTML C) Binary?</td><td class="type">A/B/C</td><td class="answer">B) HTML</td></tr>
+<tr><td class="num">9</td><td>Give one example of good file management practice.</td><td class="type">Short answer</td><td class="answer">e.g. organised folders / clear file names</td></tr>
+<tr><td class="num">10</td><td>True or False: Digital Literacy means safely and responsibly using digital tools.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+<!-- 7. E-SAFETY & DIGITAL LITERACY -->
+<h2>7. E-Safety &amp; Digital Literacy</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>True or False: A bystander takes action to stop harmful online behaviour.</td><td class="type">T/F</td><td class="answer">False (an advocate does that)</td></tr>
+<tr><td class="num">2</td><td>Which term describes the unfair gap between people with fast internet/devices and those without: A) Digital Divide B) E-Waste C) Data Protection?</td><td class="type">A/B/C</td><td class="answer">A) Digital Divide</td></tr>
+<tr><td class="num">3</td><td>Name one type of social engineering attack.</td><td class="type">Short answer</td><td class="answer">e.g. phishing / pharming</td></tr>
+<tr><td class="num">4</td><td>True or False: Pharming redirects users from a real website to a fake one.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which act requires organisations to keep personal data safe and legal: A) Computer Misuse Act B) Data Protection Act C) Copyright Act?</td><td class="type">A/B/C</td><td class="answer">B) Data Protection Act</td></tr>
+<tr><td class="num">6</td><td>Give one protective cybersecurity measure mentioned in this unit.</td><td class="type">Short answer</td><td class="answer">e.g. biometrics / firewalls / updates</td></tr>
+<tr><td class="num">7</td><td>True or False: An advocate reports bad online behaviour and promotes safety.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which of these checks help you judge if a news story is believable: A) Authors, sources, witnesses, facts B) Font size C) Number of adverts?</td><td class="type">A/B/C</td><td class="answer">A) Authors, sources, witnesses, facts</td></tr>
+<tr><td class="num">9</td><td>Name one environmental impact of computing technology.</td><td class="type">Short answer</td><td class="answer">e.g. e-waste / energy use</td></tr>
+<tr><td class="num">10</td><td>True or False: Community guidelines are the rules platforms set to keep users safe.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+<!-- 8. E-SAFETY AND CYBERSECURITY -->
+<h2>8. E-Safety and Cybersecurity</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>True or False: Data interception is "eavesdropping" on data as it travels across a network.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">2</td><td>Which type of hacker is hired to find security weaknesses before criminals do: A) Hacktivist B) Ethical (white hat) hacker C) Ransomware developer?</td><td class="type">A/B/C</td><td class="answer">B) Ethical (white hat) hacker</td></tr>
+<tr><td class="num">3</td><td>Name the malware type that locks/encrypts files and demands payment.</td><td class="type">Short answer</td><td class="answer">Ransomware</td></tr>
+<tr><td class="num">4</td><td>True or False: Encryption scrambles data so it can't be read without a key.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which person hacks to promote a social, political or religious message: A) Hacktivist B) Ethical hacker C) Bystander?</td><td class="type">A/B/C</td><td class="answer">A) Hacktivist</td></tr>
+<tr><td class="num">6</td><td>Name a major UK organisation mentioned as a target of a real-world cyberattack.</td><td class="type">Short answer</td><td class="answer">NHS</td></tr>
+<tr><td class="num">7</td><td>True or False: Privacy controls limit who can see your social media information.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which test finds insecure areas or security flaws in a system: A) Turing Test B) Penetration Testing C) CAPTCHA?</td><td class="type">A/B/C</td><td class="answer">B) Penetration Testing</td></tr>
+<tr><td class="num">9</td><td>Give one example of cyberbullying behaviour.</td><td class="type">Short answer</td><td class="answer">e.g. harassing, threatening, or being nasty online</td></tr>
+<tr><td class="num">10</td><td>True or False: Phishing emails always come from real, trustworthy companies.</td><td class="type">T/F</td><td class="answer">False (they pretend to be)</td></tr>
+</table>
+
+<!-- 9. E-SAFETY -->
+<h2>9. E-Safety</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>What is the trail of data you leave behind online called: A) Digital Footprint B) Data Trail C) Web History?</td><td class="type">A/B/C</td><td class="answer">A) Digital Footprint</td></tr>
+<tr><td class="num">2</td><td>True or False: Personal data includes your full name, address, and password.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">3</td><td>Name one way to protect your identity online.</td><td class="type">Short answer</td><td class="answer">e.g. strong passwords / privacy settings / not sharing personal data</td></tr>
+<tr><td class="num">4</td><td>True or False: Phishing tries to trick you into revealing sensitive information.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which of these should you check before trusting a website: A) Its colour scheme B) Its source and reliability C) How many images it has?</td><td class="type">A/B/C</td><td class="answer">B) Its source and reliability</td></tr>
+<tr><td class="num">6</td><td>Give one example of cyberbullying.</td><td class="type">Short answer</td><td class="answer">e.g. sending threatening messages online</td></tr>
+<tr><td class="num">7</td><td>True or False: You should always report cyberbullying if you witness it.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which term describes finding, evaluating, and creating information safely online: A) Digital Literacy B) Digital Footprint C) Personal Data?</td><td class="type">A/B/C</td><td class="answer">A) Digital Literacy</td></tr>
+<tr><td class="num">9</td><td>Name one way to browse the internet more securely.</td><td class="type">Short answer</td><td class="answer">e.g. checking for https / avoiding suspicious links</td></tr>
+<tr><td class="num">10</td><td>True or False: Once posted online, your digital footprint can be permanent.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+<!-- 10. INTRO TO PYTHON CODING WITH EDUBLOCKS -->
+<h2>10. Introduction to Python Coding with EduBlocks</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>Which Python module is used to draw shapes and patterns on screen: A) Turtle B) Random C) Math?</td><td class="type">A/B/C</td><td class="answer">A) Turtle</td></tr>
+<tr><td class="num">2</td><td>True or False: EduBlocks shows real Python code alongside the visual blocks.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">3</td><td>Name the three basic coding concepts covered in Lesson 1 (Sequence, Selection, ___).</td><td class="type">Short answer</td><td class="answer">Iteration</td></tr>
+<tr><td class="num">4</td><td>True or False: To draw a regular hexagon, you divide 360 by 6.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which data type is used for whole numbers like 4 or -10: A) String B) Integer C) Float?</td><td class="type">A/B/C</td><td class="answer">B) Integer</td></tr>
+<tr><td class="num">6</td><td>Name the loop type that runs a set number of times.</td><td class="type">Short answer</td><td class="answer">Definite iteration / for loop</td></tr>
+<tr><td class="num">7</td><td>True or False: "while True" creates an infinite loop.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which comparison operator checks if two values are NOT equal: A) == B) != C) <?</td><td class="type">A/B/C</td><td class="answer">B) !=</td></tr>
+<tr><td class="num">9</td><td>Give one reason text input needs to be converted before use in maths.</td><td class="type">Short answer</td><td class="answer">To prevent type errors (text isn't a number by default)</td></tr>
+<tr><td class="num">10</td><td>True or False: A string can only contain letters, not numbers or symbols.</td><td class="type">T/F</td><td class="answer">False</td></tr>
+</table>
+
+<!-- 11. INTRODUCTION TO PYTHON -->
+<h2>11. Introduction to Python</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>True or False: A Boolean can only be True or False.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">2</td><td>Which statement is used as a catch-all when no other conditions are met: A) if B) elif C) else?</td><td class="type">A/B/C</td><td class="answer">C) else</td></tr>
+<tr><td class="num">3</td><td>Name the term for the empty space at the start of a line, essential in Python.</td><td class="type">Short answer</td><td class="answer">Indentation</td></tr>
+<tr><td class="num">4</td><td>True or False: A variable is a permanent, unchangeable piece of data.</td><td class="type">T/F</td><td class="answer">False (it can change)</td></tr>
+<tr><td class="num">5</td><td>Which loop repeats code while a condition remains true: A) for loop B) while loop C) if statement?</td><td class="type">A/B/C</td><td class="answer">B) while loop</td></tr>
+<tr><td class="num">6</td><td>Name a string manipulation technique mentioned in this unit.</td><td class="type">Short answer</td><td class="answer">e.g. counting characters / upper-lower case / replacing text</td></tr>
+<tr><td class="num">7</td><td>True or False: A function is a reusable block of code that performs a specific task.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which keyword handles multiple extra conditions after an initial "if": A) else B) elif C) while?</td><td class="type">A/B/C</td><td class="answer">B) elif</td></tr>
+<tr><td class="num">9</td><td>Give one example of program output.</td><td class="type">Short answer</td><td class="answer">e.g. text/results displayed on screen</td></tr>
+<tr><td class="num">10</td><td>True or False: Selection lets a program make decisions based on conditions.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+<!-- 12. ALGORITHMS AND PROGRAMMING CONCEPTS -->
+<h2>12. Algorithms and Programming Concepts</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>Which flowchart shape represents a decision: A) Rectangle B) Diamond C) Oval?</td><td class="type">A/B/C</td><td class="answer">B) Diamond</td></tr>
+<tr><td class="num">2</td><td>True or False: Pseudocode is written in a real programming language's exact syntax.</td><td class="type">T/F</td><td class="answer">False (plain human language with programming structure)</td></tr>
+<tr><td class="num">3</td><td>Name the three core control structures in programming.</td><td class="type">Short answer</td><td class="answer">Sequence, Selection, Iteration</td></tr>
+<tr><td class="num">4</td><td>True or False: A syntax error stops code from running at all.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which sorting algorithm is named in this unit alongside Merge Sort and Insertion Sort: A) Quick Sort B) Bubble Sort C) Heap Sort?</td><td class="type">A/B/C</td><td class="answer">B) Bubble Sort</td></tr>
+<tr><td class="num">6</td><td>Name the two searching algorithms covered in this unit.</td><td class="type">Short answer</td><td class="answer">Linear Search and Binary Search</td></tr>
+<tr><td class="num">7</td><td>True or False: A logic error crashes the program immediately.</td><td class="type">T/F</td><td class="answer">False (it runs but gives wrong output)</td></tr>
+<tr><td class="num">8</td><td>Which of these is a defensive design/validation check: A) Range check B) Colour check C) Font check?</td><td class="type">A/B/C</td><td class="answer">A) Range check</td></tr>
+<tr><td class="num">9</td><td>Name the tool used to trace how variable values change during a program's run.</td><td class="type">Short answer</td><td class="answer">Trace table</td></tr>
+<tr><td class="num">10</td><td>True or False: Comments are executed by the computer as part of the program.</td><td class="type">T/F</td><td class="answer">False (they're ignored by the computer)</td></tr>
+</table>
+
+<!-- 13. TOPIC 3 PROGRAMMING (PYTHON AND EDUBLOCKS) -->
+<h2>13. Topic 3 Programming (Python and EduBlocks)</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>True or False: EduBlocks helps reduce spelling and syntax mistakes.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">2</td><td>Which function converts text data into a whole number: A) str() B) int() C) float()?</td><td class="type">A/B/C</td><td class="answer">B) int()</td></tr>
+<tr><td class="num">3</td><td>Name the action of storing data inside a named variable.</td><td class="type">Short answer</td><td class="answer">Assignment</td></tr>
+<tr><td class="num">4</td><td>True or False: A for loop with a range can repeat code a set number of times based on a variable.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which method converts text to lowercase: A) lower() B) upper() C) convert()?</td><td class="type">A/B/C</td><td class="answer">A) lower()</td></tr>
+<tr><td class="num">6</td><td>Name the project theme used to introduce lists and rooms in this unit.</td><td class="type">Short answer</td><td class="answer">Tracking a house layout (rooms/lights)</td></tr>
+<tr><td class="num">7</td><td>True or False: Selection is where the program decides which line of code to run based on a condition.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which of these is a real-world career/application example mentioned for Python: A) Amazon Alexa B) A physical keyboard C) A power supply unit?</td><td class="type">A/B/C</td><td class="answer">A) Amazon Alexa</td></tr>
+<tr><td class="num">9</td><td>Give one reason Python is a good language for beginners.</td><td class="type">Short answer</td><td class="answer">e.g. easy to read / widely used / good documentation</td></tr>
+<tr><td class="num">10</td><td>True or False: A condition always evaluates to either true or false.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+<!-- 14. SYSTEM SECURITY -->
+<h2>14. System Security</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>Which UK law makes hacking and unauthorised access illegal: A) Data Protection Act B) Computer Misuse Act C) Copyright Act?</td><td class="type">A/B/C</td><td class="answer">B) Computer Misuse Act (1990)</td></tr>
+<tr><td class="num">2</td><td>True or False: The CIA Triad stands for Confidentiality, Integrity, Availability.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">3</td><td>Name a type of malware other than a virus.</td><td class="type">Short answer</td><td class="answer">e.g. worm / Trojan / ransomware</td></tr>
+<tr><td class="num">4</td><td>True or False: Smishing is a social engineering attack carried out by text message.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">5</td><td>Which term describes a secret way to bypass normal login processes: A) Firewall B) Backdoor C) Encryption?</td><td class="type">A/B/C</td><td class="answer">B) Backdoor</td></tr>
+<tr><td class="num">6</td><td>Give one example of good password security practice.</td><td class="type">Short answer</td><td class="answer">e.g. strong/unique passwords, changing them regularly</td></tr>
+<tr><td class="num">7</td><td>True or False: Vishing is a phishing scam carried out over voice/phone calls.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which measure protects "Integrity" in the CIA Triad: A) Keeping data accurate B) Blocking access to attackers C) Keeping systems available?</td><td class="type">A/B/C</td><td class="answer">A) Keeping data accurate</td></tr>
+<tr><td class="num">9</td><td>Name one reason people carry out cybercrime (a hacking motivation).</td><td class="type">Short answer</td><td class="answer">e.g. money, revenge, political message, challenge</td></tr>
+<tr><td class="num">10</td><td>True or False: Regular backups help protect against data loss from ransomware.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+<!-- 15. INTERACTIVE MULTIMEDIA -->
+<h2>15. Interactive Multimedia</h2>
+<table>
+<tr><th class="num">#</th><th>Question</th><th class="type">Type</th><th class="answer">Answer</th></tr>
+<tr><td class="num">1</td><td>What does GUI stand for: A) Graphical User Interface B) General User Instructions C) Global Usage Index?</td><td class="type">A/B/C</td><td class="answer">A) Graphical User Interface</td></tr>
+<tr><td class="num">2</td><td>True or False: House Style means using consistent colours, fonts, and layout across a product.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">3</td><td>Name the two types of compression covered in this unit.</td><td class="type">Short answer</td><td class="answer">Lossy and Lossless</td></tr>
+<tr><td class="num">4</td><td>True or False: Lossless compression removes some data to reduce file size.</td><td class="type">T/F</td><td class="answer">False (that's Lossy; Lossless keeps all data)</td></tr>
+<tr><td class="num">5</td><td>Which of these is an example of an Interactive Multimedia Product: A) A printed newspaper B) A self-service kiosk C) A paper flyer?</td><td class="type">A/B/C</td><td class="answer">B) A self-service kiosk</td></tr>
+<tr><td class="num">6</td><td>Name a planning tool used to organise ideas before building a digital project.</td><td class="type">Short answer</td><td class="answer">e.g. mind map / mood board</td></tr>
+<tr><td class="num">7</td><td>True or False: Accessibility means making a product easy to use for everyone, including different needs.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+<tr><td class="num">8</td><td>Which file format would you expect to be used for video: A) JPG B) MP4 C) MP3?</td><td class="type">A/B/C</td><td class="answer">B) MP4</td></tr>
+<tr><td class="num">9</td><td>Give one reason testing is important before finishing a digital project.</td><td class="type">Short answer</td><td class="answer">e.g. to find and fix errors / check it meets requirements</td></tr>
+<tr><td class="num">10</td><td>True or False: Navigation refers to how a user moves through a product, such as via menus or links.</td><td class="type">T/F</td><td class="answer">True</td></tr>
+</table>
+
+</body>
+</html>

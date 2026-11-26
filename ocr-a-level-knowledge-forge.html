@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCR A-Level CS — Knowledge Forge</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ═══════════════════════════════ THEME ═══════════════════════════════ */
+:root {
+  --bg:#f2f4f9; --surface:#ffffff; --card:#ffffff; --border:#dde2ef;
+  --accent:#0d9e85; --accent2:#5b4fcf; --accent3:#e84848;
+  --gold:#9a6f00; --gold-bg:#fff8e1; --gold-border:#ffe494;
+  --text:#1a1f36; --muted:#7a839e; --sub:#4a5270;
+  --correct:#0d9e85; --correct-bg:#e6faf6; --correct-border:#b2e8df;
+  --wrong:#c0392b; --wrong-bg:#fdf0f0; --wrong-border:#f5c6c6;
+  --hint:#7c5c00; --hint-bg:#fff3cd; --hint-border:#ffc107;
+  --code-bg:#f0f2f8; --code-text:#5b4fcf;
+  --mono:'JetBrains Mono',monospace; --body:'DM Sans',sans-serif;
+  --shadow:0 2px 14px rgba(0,0,0,.07);
+  --radius:14px;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --surface:#161b22; --card:#1c2333; --border:#2a3347;
+  --accent:#00d4aa; --accent2:#7c6aff; --accent3:#ff6b6b;
+  --gold:#e6b800; --gold-bg:rgba(255,209,102,.08); --gold-border:rgba(255,209,102,.2);
+  --text:#e8eaf0; --muted:#6b7a99; --sub:#aab2cc;
+  --correct:#00d4aa; --correct-bg:rgba(0,212,170,.08); --correct-border:rgba(0,212,170,.3);
+  --wrong:#ff6b6b; --wrong-bg:rgba(255,107,107,.08); --wrong-border:rgba(255,107,107,.3);
+  --hint:#d4a000; --hint-bg:rgba(255,193,7,.07); --hint-border:rgba(255,193,7,.3);
+  --code-bg:rgba(255,255,255,.05); --code-text:#a89cff;
+  --shadow:0 2px 14px rgba(0,0,0,.3);
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:var(--body); min-height:100vh; transition:background .25s,color .25s; }
+
+/* ═══════════════════════════════ HEADER ═══════════════════════════════ */
+header {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  box-shadow:var(--shadow); padding:14px 28px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:200;
+}
+.logo { font-family:var(--mono); font-size:12px; color:var(--accent); letter-spacing:2px; text-transform:uppercase; }
+.logo em { color:var(--muted); font-style:normal; }
+.header-right { display:flex; gap:16px; align-items:center; }
+.stat { display:flex; flex-direction:column; align-items:center; min-width:36px; }
+.stat-val { font-weight:700; font-size:18px; font-family:var(--mono); line-height:1; }
+.sv-g { color:var(--correct); } .sv-r { color:var(--wrong); } .sv-o { color:var(--gold); }
+.stat-label { color:var(--muted); font-size:9px; letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+.theme-btn {
+  width:36px; height:36px; border-radius:50%; border:1px solid var(--border);
+  background:var(--bg); color:var(--text); cursor:pointer; font-size:16px;
+  display:flex; align-items:center; justify-content:center; transition:all .2s;
+}
+.theme-btn:hover { border-color:var(--accent); }
+
+/* ═══════════════════════════════ TOPIC NAV ═══════════════════════════ */
+.topic-nav {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:12px 28px; display:flex; gap:8px; flex-wrap:wrap;
+}
+.tnav-btn {
+  padding:5px 14px; border-radius:20px; border:1.5px solid var(--border);
+  background:transparent; color:var(--muted); font-family:var(--body);
+  font-size:12px; cursor:pointer; transition:all .18s; font-weight:500;
+}
+.tnav-btn:hover { border-color:var(--accent2); color:var(--accent2); }
+.tnav-btn.active { background:var(--accent2); border-color:var(--accent2); color:#fff; font-weight:700; }
+.tnav-btn.all.active { background:var(--accent); border-color:var(--accent); }
+
+/* ═══════════════════════════════ MAIN ═══════════════════════════════ */
+main { max-width:820px; margin:0 auto; padding:28px 20px; }
+
+/* Mode bar */
+.mode-bar { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
+.mode-lbl { font-size:11px; color:var(--muted); font-family:var(--mono); margin-right:2px; letter-spacing:1px; }
+.mode-btn {
+  padding:5px 13px; border-radius:6px; border:1.5px solid var(--border);
+  background:transparent; color:var(--muted); font-size:12px; cursor:pointer;
+  transition:all .15s; font-family:var(--body); font-weight:500;
+}
+.mode-btn:hover:not(.active) { border-color:var(--accent2); color:var(--accent2); }
+.mode-btn.active { background:var(--accent2); border-color:var(--accent2); color:#fff; font-weight:700; }
+.spacer { flex:1; }
+.shuffle-btn {
+  padding:5px 13px; border-radius:6px; border:1.5px solid var(--gold-border);
+  background:var(--gold-bg); color:var(--gold); font-size:12px; cursor:pointer;
+  font-family:var(--body); font-weight:600; transition:all .15s;
+}
+.shuffle-btn:hover { opacity:.8; }
+
+/* Progress */
+.prog-wrap { margin-bottom:22px; }
+.prog-row { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:6px; font-family:var(--mono); }
+.prog-track { height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+.prog-fill { height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); border-radius:3px; transition:width .4s ease; }
+
+/* ═══════════════════════════════ QUESTION CARD ═══════════════════════ */
+.q-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:28px 28px 22px;
+  margin-bottom:20px; box-shadow:var(--shadow);
+}
+.q-meta { display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+.topic-tag {
+  font-size:10px; font-family:var(--mono); letter-spacing:1px; text-transform:uppercase;
+  padding:3px 9px; border-radius:4px; font-weight:700; border:1px solid transparent;
+}
+.qnum { font-size:11px; color:var(--muted); font-family:var(--mono); }
+.type-badge {
+  font-size:10px; padding:3px 8px; border-radius:4px;
+  border:1px solid var(--border); color:var(--muted); font-family:var(--mono);
+}
+.q-text { font-size:17px; font-weight:600; line-height:1.6; color:var(--text); margin-bottom:20px; }
+.q-subtext { font-size:13px; color:var(--sub); margin-top:-14px; margin-bottom:18px; line-height:1.5; }
+
+/* ── MCQ ── */
+.options { display:flex; flex-direction:column; gap:9px; }
+.opt {
+  padding:12px 16px; border-radius:10px; border:1.5px solid var(--border);
+  background:var(--bg); cursor:pointer; font-size:14px; transition:all .14s;
+  display:flex; gap:12px; align-items:flex-start; line-height:1.45; color:var(--text);
+}
+.opt:hover:not(.disabled) { border-color:var(--accent2); background:var(--surface); }
+.opt.correct { border-color:var(--correct); background:var(--correct-bg); }
+.opt.wrong { border-color:var(--wrong); background:var(--wrong-bg); }
+.opt.disabled { cursor:default; }
+.opt-ltr { font-family:var(--mono); font-size:11px; font-weight:700; color:var(--muted); min-width:18px; margin-top:1px; }
+.opt.correct .opt-ltr { color:var(--correct); }
+.opt.wrong .opt-ltr { color:var(--wrong); }
+
+/* ── TRUE/FALSE ── */
+.tf-wrap { display:flex; gap:12px; }
+.tf-btn {
+  flex:1; padding:14px; border-radius:10px; border:1.5px solid var(--border);
+  background:var(--bg); cursor:pointer; font-size:15px; font-weight:700;
+  color:var(--text); transition:all .14s; font-family:var(--body);
+}
+.tf-btn:hover:not(.disabled) { border-color:var(--accent2); background:var(--surface); }
+.tf-btn.correct { border-color:var(--correct); background:var(--correct-bg); color:var(--correct); }
+.tf-btn.wrong { border-color:var(--wrong); background:var(--wrong-bg); color:var(--wrong); }
+
+/* ── SHORT ANSWER ── */
+.sa-wrap { display:flex; flex-direction:column; gap:10px; }
+.sa-input {
+  padding:12px 14px; border-radius:10px; border:1.5px solid var(--border);
+  background:var(--bg); color:var(--text); font-family:var(--body);
+  font-size:14px; outline:none; resize:vertical; min-height:60px;
+  transition:border-color .15s;
+}
+.sa-input:focus { border-color:var(--accent2); background:var(--surface); }
+.check-btn {
+  align-self:flex-start; padding:9px 20px; background:var(--accent2);
+  color:#fff; border:none; border-radius:8px; font-family:var(--body);
+  font-size:13px; font-weight:700; cursor:pointer; transition:opacity .15s;
+}
+.check-btn:hover { opacity:.85; }
+
+/* ── FILL THE GAP ── */
+.gap-container { line-height:2.2; font-size:15px; color:var(--text); }
+.gap-input {
+  display:inline-block; min-width:90px; padding:3px 10px;
+  border-bottom:2.5px solid var(--accent2); border-top:none; border-left:none; border-right:none;
+  background:transparent; color:var(--text); font-family:var(--mono);
+  font-size:13px; outline:none; text-align:center; transition:border-color .15s;
+  border-radius:0;
+}
+.gap-input:focus { border-color:var(--accent); }
+.gap-input.correct-gap { border-color:var(--correct); color:var(--correct); }
+.gap-input.wrong-gap { border-color:var(--wrong); color:var(--wrong); background:var(--wrong-bg); }
+
+/* ── CODE COMPLETION ── */
+.code-block {
+  background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+  padding:16px 18px; font-family:var(--mono); font-size:13px; line-height:2;
+  color:var(--text); white-space:pre-wrap; overflow-x:auto;
+}
+.code-block .code-gap-input {
+  display:inline-block; min-width:100px; padding:2px 8px;
+  border:none; border-bottom:2px solid var(--accent2);
+  background:rgba(91,79,207,.08); color:var(--accent2);
+  font-family:var(--mono); font-size:13px; outline:none;
+  border-radius:4px 4px 0 0; transition:all .15s;
+}
+.code-block .code-gap-input:focus { background:rgba(91,79,207,.15); border-bottom-color:var(--accent); }
+.code-block .code-gap-input.correct-gap { background:var(--correct-bg); color:var(--correct); border-bottom-color:var(--correct); }
+.code-block .code-gap-input.wrong-gap { background:var(--wrong-bg); color:var(--wrong); border-bottom-color:var(--wrong); }
+
+/* ── TRUTH TABLE ── */
+.tt-wrap { overflow-x:auto; }
+.tt-table { border-collapse:collapse; font-family:var(--mono); font-size:13px; width:100%; }
+.tt-table th {
+  background:var(--accent2); color:#fff; padding:8px 14px;
+  font-size:11px; letter-spacing:1px; text-align:center; border:1px solid var(--accent2);
+}
+.tt-table td {
+  padding:7px 14px; text-align:center; border:1px solid var(--border);
+  background:var(--bg); color:var(--text);
+}
+.tt-table tr:nth-child(even) td { background:var(--surface); }
+.tt-cell-input {
+  width:52px; padding:4px 0; border:none; border-bottom:2px solid var(--accent2);
+  background:transparent; color:var(--text); font-family:var(--mono);
+  font-size:13px; text-align:center; outline:none; border-radius:0;
+}
+.tt-cell-input.correct-gap { color:var(--correct); border-bottom-color:var(--correct); }
+.tt-cell-input.wrong-gap { color:var(--wrong); border-bottom-color:var(--wrong); }
+
+/* ── CALCULATION ── */
+.calc-wrap { display:flex; flex-direction:column; gap:10px; }
+.calc-input {
+  padding:12px 14px; border-radius:10px; border:1.5px solid var(--border);
+  background:var(--bg); color:var(--text); font-family:var(--mono);
+  font-size:15px; outline:none; width:100%; max-width:300px;
+  transition:border-color .15s;
+}
+.calc-input:focus { border-color:var(--accent2); }
+.calc-input.correct-gap { border-color:var(--correct); background:var(--correct-bg); }
+.calc-input.wrong-gap { border-color:var(--wrong); background:var(--wrong-bg); }
+.calc-steps { font-size:13px; color:var(--sub); line-height:1.7; font-family:var(--mono); }
+
+/* ── TRACE TABLE ── */
+.trace-wrap { overflow-x:auto; }
+.trace-table { border-collapse:collapse; font-family:var(--mono); font-size:13px; }
+.trace-table th {
+  background:var(--surface); color:var(--accent2); padding:7px 16px;
+  font-size:11px; letter-spacing:1px; border:1px solid var(--border); text-align:center;
+}
+.trace-table td { padding:6px 10px; border:1px solid var(--border); background:var(--bg); }
+.trace-cell {
+  width:60px; padding:4px 0; border:none; border-bottom:2px solid var(--accent2);
+  background:transparent; color:var(--text); font-family:var(--mono);
+  font-size:12px; text-align:center; outline:none;
+}
+.trace-cell.correct-gap { color:var(--correct); border-bottom-color:var(--correct); }
+.trace-cell.wrong-gap { color:var(--wrong); border-bottom-color:var(--wrong); }
+
+/* ── HINT ── */
+.hint-btn {
+  padding:7px 14px; border-radius:8px; border:1.5px solid var(--hint-border);
+  background:var(--hint-bg); color:var(--hint); font-family:var(--body);
+  font-size:12px; font-weight:600; cursor:pointer; transition:all .15s;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.hint-btn:hover { opacity:.8; }
+.hint-box {
+  display:none; margin-top:10px; padding:11px 14px; border-radius:8px;
+  border-left:3px solid var(--hint-border); background:var(--hint-bg);
+  font-size:13px; color:var(--hint); line-height:1.55;
+}
+.hint-box.show { display:block; }
+.hint-counter { font-size:11px; color:var(--muted); font-family:var(--mono); }
+
+/* ── EXPLANATION ── */
+.explanation {
+  display:none; margin-top:16px; padding:14px 16px; border-radius:10px;
+  border-left:3px solid var(--accent); background:var(--correct-bg);
+  font-size:13px; line-height:1.65; color:var(--sub);
+}
+.explanation.show { display:block; }
+.explanation strong { color:var(--accent); }
+.key-point {
+  margin-top:8px; padding:7px 11px; background:var(--gold-bg);
+  border-radius:6px; font-size:12px; color:var(--gold);
+  font-family:var(--mono); border:1px solid var(--gold-border);
+}
+.model-answer {
+  margin-top:10px; padding:10px 13px; background:var(--bg);
+  border:1px solid var(--border); border-radius:7px;
+  font-size:13px; color:var(--sub); line-height:1.6;
+}
+.model-answer strong { color:var(--gold); }
+
+/* ── RESULT BANNER ── */
+.result-banner {
+  display:none; padding:10px 16px; border-radius:8px;
+  font-size:13px; font-weight:600; margin-top:14px;
+}
+.result-banner.show { display:block; }
+.rb-correct { background:var(--correct-bg); color:var(--correct); border:1px solid var(--correct-border); }
+.rb-wrong { background:var(--wrong-bg); color:var(--wrong); border:1px solid var(--wrong-border); }
+
+/* ── CONTROLS ── */
+.q-controls { display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:8px; }
+.nav-btn {
+  padding:9px 20px; border-radius:8px; border:1.5px solid var(--border);
+  background:transparent; color:var(--text); font-family:var(--body);
+  font-size:13px; cursor:pointer; transition:all .15s;
+}
+.nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+.nav-btn.next { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+.nav-btn.next:hover { opacity:.88; }
+.nav-btn:disabled { opacity:.3; cursor:default; }
+
+/* ── TOPIC COLOUR CHIPS ── */
+.tc0{background:#e6faf6;color:#0a7a66;border-color:#b2e8df;}
+.tc1{background:#eeebff;color:#4a3dbf;border-color:#c9c3f5;}
+.tc2{background:#fdf0f0;color:#c0392b;border-color:#f5c6c6;}
+.tc3{background:#fff8e1;color:#8a6000;border-color:#ffe494;}
+.tc4{background:#e8f7ff;color:#1070a0;border-color:#b3dff5;}
+.tc5{background:#fff3e0;color:#b05000;border-color:#ffd8a8;}
+.tc6{background:#fce8f3;color:#a02060;border-color:#f0b8d8;}
+.tc7{background:#f0f8e8;color:#3a6000;border-color:#b8dda8;}
+[data-theme="dark"] .tc0{background:rgba(0,212,170,.12);color:#00d4aa;border-color:rgba(0,212,170,.3);}
+[data-theme="dark"] .tc1{background:rgba(124,106,255,.12);color:#a89cff;border-color:rgba(124,106,255,.3);}
+[data-theme="dark"] .tc2{background:rgba(255,107,107,.12);color:#ff8f8f;border-color:rgba(255,107,107,.3);}
+[data-theme="dark"] .tc3{background:rgba(255,209,102,.12);color:#ffd166;border-color:rgba(255,209,102,.3);}
+[data-theme="dark"] .tc4{background:rgba(52,199,255,.12);color:#34c7ff;border-color:rgba(52,199,255,.3);}
+[data-theme="dark"] .tc5{background:rgba(255,152,0,.12);color:#ff9800;border-color:rgba(255,152,0,.3);}
+[data-theme="dark"] .tc6{background:rgba(233,30,99,.12);color:#f06292;border-color:rgba(233,30,99,.3);}
+[data-theme="dark"] .tc7{background:rgba(100,200,50,.12);color:#80d040;border-color:rgba(100,200,50,.3);}
+
+code {
+  font-family:var(--mono); background:var(--code-bg);
+  padding:2px 6px; border-radius:4px; font-size:.88em; color:var(--code-text);
+}
+
+/* ── SUMMARY ── */
+.summary { display:none; text-align:center; padding:50px 20px; }
+.summary.show { display:block; }
+.summary h2 { font-size:30px; font-weight:700; margin-bottom:8px; }
+.big-score { font-family:var(--mono); font-size:68px; font-weight:700; color:var(--accent); line-height:1; margin:16px 0 8px; }
+.summary p { color:var(--muted); font-size:15px; margin-bottom:24px; }
+.sum-btn { padding:12px 28px; background:var(--accent2); color:#fff; border:none; border-radius:9px; font-family:var(--body); font-size:14px; font-weight:700; cursor:pointer; margin:6px; transition:opacity .15s; }
+.sum-btn:hover { opacity:.85; }
+.sum-btn.sec { background:transparent; border:1.5px solid var(--border); color:var(--text); }
+.missed-list { text-align:left; margin-top:28px; }
+.missed-list h3 { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-family:var(--mono); }
+.missed-item { padding:11px 14px; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-bottom:7px; font-size:13px; }
+.mi-q { color:var(--text); margin-bottom:3px; font-weight:500; }
+.mi-a { color:var(--correct); font-family:var(--mono); font-size:11px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  header{padding:10px 14px;} .topic-nav{padding:10px 14px;}
+  main{padding:16px 12px;} .q-card{padding:18px 16px;}
+  .q-text{font-size:15px;} .header-right{gap:10px;}
+}
+</style>
+</head>
+<body data-theme="light">
+
+<header>
+  <div class="logo">OCR A-Level <em>// CS Forge</em></div>
+  <div class="header-right">
+    <div class="stat"><div class="stat-val sv-g" id="s-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat"><div class="stat-val sv-r" id="s-wrong">0</div><div class="stat-label">Wrong</div></div>
+    <div class="stat"><div class="stat-val sv-o" id="s-streak">0</div><div class="stat-label">Streak</div></div>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-icon">🌙</button>
+  </div>
+</header>
+
+<div class="topic-nav" id="topic-nav"></div>
+
+<main>
+  <div class="mode-bar">
+    <span class="mode-lbl">MODE:</span>
+    <button class="mode-btn active" onclick="setMode('quiz')" id="mode-quiz">Quiz</button>
+    <button class="mode-btn" onclick="setMode('flashcard')" id="mode-flashcard">Flashcard</button>
+    <button class="mode-btn" onclick="setMode('weakspots')" id="mode-weakspots">Weak Spots</button>
+    <div class="spacer"></div>
+    <button class="shuffle-btn" onclick="shuffleAndReset()">⟳ Shuffle</button>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-row">
+      <span id="prog-label">Question 1 of 0</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="quiz-area"></div>
+  <div id="summary" class="summary"></div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  TOPICS
+// ═══════════════════════════════════════════════════════════════════════
+const TOPICS = [
+  {id:'architecture', label:'Architecture',   color:0},
+  {id:'memory',       label:'Memory',         color:1},
+  {id:'networking',   label:'Networking',     color:2},
+  {id:'software',     label:'Software & OS',  color:3},
+  {id:'programming',  label:'Programming',    color:4},
+  {id:'algorithms',   label:'Algorithms',     color:5},
+  {id:'security',     label:'Security',       color:6},
+  {id:'logic',        label:'Logic & Boolean',color:7},
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+//  QUESTION BANK
+//  Types: mcq | tf | short | gap | code | truth | trace | calc
+// ═══════════════════════════════════════════════════════════════════════
+const ALL_Q = [
+
+/* ──────────── ARCHITECTURE ──────────── */
+{topic:'architecture',type:'mcq',
+ q:'What does the Fetch-Decode-Execute cycle describe?',
+ opts:['How the GPU renders pixels','The sequence of steps a CPU follows to process each instruction','How data moves between RAM and storage','The process of compiling source code'],
+ answer:1, hint:'Think about the three stages that repeat continuously inside a CPU.',
+ explain:'The FDE cycle is the fundamental CPU operation: <strong>Fetch</strong> instruction from memory (via MAR/MDR), <strong>Decode</strong> it in the CIR, then <strong>Execute</strong> it using the ALU/control unit.',
+ key:'Fetch (MAR→MDR→CIR) → Decode → Execute; PC increments after each fetch.'},
+
+{topic:'architecture',type:'gap',
+ q:'Complete the description of the FDE cycle registers.',
+ hint:'The Program Counter holds an address; the Memory Address Register carries it to memory.',
+ template:'The [PC] holds the address of the next instruction. During fetch, this address is copied to the [MAR], the instruction is retrieved and stored in the [MDR], then transferred to the [CIR] for decoding.',
+ gaps:['PC','MAR','MDR','CIR'],
+ explain:'PC→MAR: address sent to memory. MDR: data comes back. CIR: instruction decoded.',
+ key:'PC → MAR → MDR → CIR is the fetch path.'},
+
+{topic:'architecture',type:'mcq',
+ q:'Von Neumann architecture has a bottleneck because:',
+ opts:['The ALU can only do one operation at a time','Data and instructions share the same bus and memory space','There are not enough registers','The clock speed is fixed'],
+ answer:1, hint:'Think about what von Neumann and Harvard architectures have in common — and what differs.',
+ explain:'Sharing one bus for both data and program instructions means the CPU often stalls waiting for memory transfers — the <strong>von Neumann bottleneck</strong>.',
+ key:'Shared bus → CPU stalls; cured by cache, wider bus, or Harvard split-memory architecture.'},
+
+{topic:'architecture',type:'calc',
+ q:'A CPU has a clock speed of 3.2 GHz and executes on average 2 instructions per clock cycle. How many instructions does it execute per second? Give your answer in billions (GHz × IPC).',
+ hint:'Multiply clock speed (in billions of cycles/sec) by instructions per cycle.',
+ answer:'6.4', altAnswers:['6400000000','6.4 billion','6,400,000,000'],
+ steps:'3.2 GHz × 2 IPC = 6.4 billion instructions/second',
+ explain:'Clock speed × IPC = throughput. 3.2 × 2 = 6.4 GIPS.',
+ key:'Throughput = Clock speed (GHz) × IPC; units = billion instructions/sec.'},
+
+{topic:'architecture',type:'mcq',
+ q:'What is pipelining in CPU design?',
+ opts:['Running multiple programs simultaneously using separate cores','Overlapping fetch/decode/execute stages of different instructions simultaneously','Storing frequently used data closer to the CPU','Increasing the number of registers available'],
+ answer:1, hint:'Think of an assembly line — each stage works on a different item at the same time.',
+ explain:'Pipelining fills each FDE stage with a different instruction at the same time. While instruction N is executing, N+1 is decoding and N+2 is being fetched.',
+ key:'Pipelining ↑ throughput; hazards (data/control) are the main downside.'},
+
+{topic:'architecture',type:'tf',
+ q:'A higher clock speed always results in better CPU performance, regardless of other factors.',
+ answer:false, hint:'Consider what else affects how many instructions complete per second.',
+ explain:'False. Performance also depends on IPC (instructions per clock), cache hit rate, core count, and architecture. A well-pipelined 3 GHz CPU can outperform a poorly designed 4 GHz one.',
+ key:'Performance = Clock × IPC × cores × cache efficiency — not clock alone.'},
+
+{topic:'architecture',type:'calc',
+ q:'A 32-bit CPU can address up to how many unique memory locations? Give your answer as a power of 2 and in GB.',
+ hint:'2³² = ? Divide by 1024³ to get gigabytes.',
+ answer:'4', altAnswers:['4gb','4 gb','4 gigabytes','4294967296','2^32'],
+ steps:'2³² = 4,294,967,296 bytes = 4 GB',
+ explain:'Each additional address bit doubles the addressable space. 2³² = ~4.3 billion bytes = 4 GB.',
+ key:'n-bit address bus → 2ⁿ addressable locations; 32-bit = 4 GB, 64-bit = 16 EB.'},
+
+/* ──────────── MEMORY ──────────── */
+{topic:'memory',type:'mcq',
+ q:'Which correctly orders memory from fastest to slowest?',
+ opts:['Registers → Cache → RAM → HDD','Cache → Registers → RAM → SSD','RAM → Cache → Registers → HDD','HDD → RAM → Cache → Registers'],
+ answer:0, hint:'What is physically closest to the CPU?',
+ explain:'Registers are on-die and the fastest. Then L1/L2/L3 cache. RAM is off-die. HDD/SSD are the slowest.',
+ key:'Registers > L1 > L2 > L3 > RAM > SSD > HDD; speed ↑ = capacity ↓ = cost ↑.'},
+
+{topic:'memory',type:'gap',
+ q:'Fill in the blanks about cache memory.',
+ hint:'Think about what "hit" and "miss" mean, and which SRAM type is fastest.',
+ template:'Cache is made of [SRAM] and sits between the CPU and [RAM]. When data is found in cache it is called a cache [hit]; when it must be fetched from main memory it is a cache [miss]. A higher hit rate means [faster] average memory access.',
+ gaps:['SRAM','RAM','hit','miss','faster'],
+ explain:'SRAM is fast but expensive; DRAM (RAM) is slow but cheap. Cache exploits temporal/spatial locality.',
+ key:'SRAM cache; Hit = fast; Miss = fetch from RAM; hit rate ↑ → performance ↑.'},
+
+{topic:'memory',type:'calc',
+ q:'A file is 2.5 MB. RAM access takes 50 ns; HDD access takes 10 ms. If 80% of accesses are cache hits (1 ns each) and 20% are RAM, what is the average access time in ns?',
+ hint:'Weighted average: (0.8 × cache time) + (0.2 × RAM time).',
+ answer:'10.8', altAnswers:['10.8ns','10.8 ns','~10.8','10.8 nanoseconds'],
+ steps:'(0.8 × 1 ns) + (0.2 × 50 ns) = 0.8 + 10 = 10.8 ns',
+ explain:'Weighted average access time = Σ(probability × time). Cache hits dominate when rate is high.',
+ key:'Average access = Σ(hit_rate × time_for_level); shows why high hit rate matters enormously.'},
+
+{topic:'memory',type:'tf',
+ q:'Virtual memory uses part of the hard disk as an extension of RAM.',
+ answer:true, hint:'What happens when all RAM slots are occupied?',
+ explain:'Correct. When RAM is full, the OS moves inactive "pages" to a page file on disk. Accessing this is ~100,000× slower, causing "thrashing" if overused.',
+ key:'Virtual memory = disk extension of RAM; page fault → disk access; thrashing = too many page faults.'},
+
+/* ──────────── NETWORKING ──────────── */
+{topic:'networking',type:'mcq',
+ q:'Which layer of the TCP/IP model handles routing packets between networks using IP addresses?',
+ opts:['Application','Transport','Internet','Link'],
+ answer:2, hint:'IP addresses are logical addresses used to route between different networks.',
+ explain:'The <strong>Internet layer</strong> (OSI Network layer) handles logical IP addressing and routing. Routers operate here.',
+ key:'Internet layer = IP + routing; Transport = TCP/UDP; Application = HTTP/DNS/FTP.'},
+
+{topic:'networking',type:'gap',
+ q:'Complete the description of the TCP three-way handshake.',
+ hint:'Three messages are exchanged: one to start, one to acknowledge + reply, one final confirm.',
+ template:'To establish a TCP connection: (1) The client sends a [SYN] packet. (2) The server responds with [SYN-ACK]. (3) The client sends an [ACK]. The connection is now [established] and data transfer can begin.',
+ gaps:['SYN','SYN-ACK','ACK','established'],
+ explain:'SYN synchronises sequence numbers. SYN-ACK confirms and replies. Final ACK confirms receipt.',
+ key:'SYN → SYN-ACK → ACK; establishes reliable bidirectional connection before data flows.'},
+
+{topic:'networking',type:'calc',
+ q:'A file is 8 MB. The network transfer rate is 100 Mbps. How long does it take to transfer in seconds? (1 MB = 8 Mb)',
+ hint:'Convert MB to Mb first, then divide by speed.',
+ answer:'0.64', altAnswers:['0.64s','0.64 seconds','~0.64'],
+ steps:'8 MB = 64 Mb. Time = 64 Mb ÷ 100 Mbps = 0.64 s',
+ explain:'Always convert to consistent units (bits vs bytes). 8 MB = 64 megabits.',
+ key:'Transfer time = File size (bits) ÷ Bandwidth (bps). Convert MB → Mb by × 8.'},
+
+{topic:'networking',type:'mcq',
+ q:'What is the main difference between TCP and UDP?',
+ opts:['TCP is faster; UDP is more reliable','TCP guarantees delivery with acknowledgements; UDP is connectionless with no delivery guarantee','TCP is only for file transfer; UDP is only for video','UDP encrypts all data automatically'],
+ answer:1, hint:'Which protocol checks that every packet arrived safely?',
+ explain:'<strong>TCP</strong>: handshake + ACKs + retransmission = reliable but slower. <strong>UDP</strong>: fire-and-forget = fast, used where latency matters more than perfect delivery (streaming, gaming, VoIP).',
+ key:'TCP = reliable, ordered; UDP = fast, no guarantee. Use UDP when some loss is acceptable.'},
+
+{topic:'networking',type:'tf',
+ q:'A switch makes forwarding decisions based on IP addresses.',
+ answer:false, hint:'What layer does a switch operate at?',
+ explain:'False. A <strong>switch</strong> operates at Layer 2 and uses MAC addresses. A <strong>router</strong> uses IP addresses at Layer 3.',
+ key:'Switch = MAC addresses (Layer 2); Router = IP addresses (Layer 3).'},
+
+/* ──────────── SOFTWARE & OS ──────────── */
+{topic:'software',type:'mcq',
+ q:'What is the main purpose of an operating system?',
+ opts:['To compile programs','To manage hardware resources and provide an interface between applications and hardware','To provide a web browser','To store files on disk'],
+ answer:1, hint:'Think about what sits between the user and the physical machine.',
+ explain:'An OS manages CPU time, memory, I/O devices, file systems, and processes — abstracting hardware so applications can run portably.',
+ key:'OS = resource manager + hardware abstraction; manages process/memory/file/device.'},
+
+{topic:'software',type:'gap',
+ q:'Fill in the blanks about types of software translator.',
+ hint:'One translates line by line at runtime; the other translates the whole program first.',
+ template:'A [compiler] translates an entire program into machine code before execution. An [interpreter] translates and executes the program [line by line] at runtime. Compilers generally produce [faster] executables; interpreters are easier for [debugging].',
+ gaps:['compiler','interpreter','line by line','faster','debugging'],
+ explain:'Compilers: one translation, fast runtime, errors found at compile time. Interpreters: translate on the fly, easier debugging, slower execution.',
+ key:'Compiler = whole program once → fast runtime; Interpreter = line-by-line → flexible/slower.'},
+
+{topic:'software',type:'mcq',
+ q:'In Round Robin scheduling, each process is given:',
+ opts:['All the CPU time it needs until it finishes','A fixed time slice, then preempted and moved to the back of the queue','Priority based on how much memory it uses','Random CPU access'],
+ answer:1, hint:'Round Robin is named after a circular queue.',
+ explain:'Round Robin assigns equal time slices (quanta). After its slice, a process is preempted and queued again — ensuring fairness.',
+ key:'Round Robin = equal time slices, preemptive; fair but context-switch overhead.'},
+
+{topic:'software',type:'tf',
+ q:'Thrashing occurs when the CPU spends more time executing user processes than handling page faults.',
+ answer:false, hint:'What does thrashing mean for CPU time spent?',
+ explain:'False. Thrashing is when the CPU spends <em>more time swapping pages</em> than running processes — the opposite of productive work.',
+ key:'Thrashing = excessive page faults; system swaps constantly; throughput collapses.'},
+
+/* ──────────── PROGRAMMING ──────────── */
+{topic:'programming',type:'mcq',
+ q:'What is the difference between a class and an object in OOP?',
+ opts:['A class is an instance; an object is a blueprint','A class is a blueprint; an object is an instance created from it','They are identical','Classes store data; objects contain only methods'],
+ answer:1, hint:'You write a class once; you can make many objects from it.',
+ explain:'A <strong>class</strong> defines structure (attributes + methods). An <strong>object</strong> is a specific instance. e.g. <code>Car</code> is the class; <code>myCar = Car()</code> creates an object.',
+ key:'Class = template; Object = instance; instantiation = creating object from class.'},
+
+{topic:'programming',type:'code',
+ q:'Complete the Python function to calculate the factorial of n recursively.',
+ hint:'Every recursive function needs a base case (when n == 0 or 1) and a recursive case.',
+ template:`def factorial(n):
+    if n [==] [1]:        # base case
+        return [1]
+    else:
+        return n [*] factorial([n-1])   # recursive case`,
+ gaps:['==','1','1','*','n-1'],
+ explain:'Base case: factorial(1) = 1. Recursive: n × factorial(n-1) — each call reduces n until base case is hit.',
+ key:'Recursion = base case + recursive case; uses call stack; factorial(5)=120.'},
+
+{topic:'programming',type:'code',
+ q:'Complete the Python function that performs a linear search, returning the index of the target or -1 if not found.',
+ hint:'Loop through each element; compare it to target; return index if match found.',
+ template:`def linear_search(arr, target):
+    for [i] in range(len([arr])):
+        if arr[i] [==] target:
+            return [i]
+    return [-1]`,
+ gaps:['i','arr','==','i','-1'],
+ explain:'Linear search checks each element in order. O(n) time. Returns index on match, -1 if not found.',
+ key:'Linear search = O(n); simple, works on unsorted data; returns index or -1.'},
+
+{topic:'programming',type:'code',
+ q:'Complete this Python class for a simple Stack data structure.',
+ hint:'A stack needs push (append to end) and pop (remove from end — LIFO).',
+ template:`class Stack:
+    def __init__(self):
+        self.items = [[]
+
+    def push(self, item):
+        self.[items].append([item])
+
+    def pop(self):
+        if not self.is_empty():
+            return self.items.[pop]()
+
+    def is_empty(self):
+        return len(self.items) [==] 0`,
+ gaps:['[]','items','item','pop','=='],
+ explain:'Stack uses a list internally. Push appends; pop removes from end (LIFO). is_empty checks length.',
+ key:'Stack = LIFO; push/pop from top; uses list.append() and list.pop().'},
+
+{topic:'programming',type:'mcq',
+ q:'Which SQL query retrieves all students with a grade above 70 from a table called "students"?',
+ opts:['SELECT * WHERE grade > 70','SELECT * FROM students WHERE grade > 70','GET students WHERE grade > 70','SELECT students WHERE grade > 70 FROM table'],
+ answer:1, hint:'SQL syntax: SELECT columns FROM table WHERE condition',
+ explain:'<code>SELECT * FROM students WHERE grade > 70</code> — SELECT specifies columns, FROM the table, WHERE filters rows.',
+ key:'SELECT [cols] FROM [table] WHERE [condition]; * means all columns.'},
+
+{topic:'programming',type:'gap',
+ q:'Complete the description of key OOP concepts.',
+ hint:'Think: hiding internals, same-name different behaviour, parent-child relationships, creating unique copies.',
+ template:'[Encapsulation] hides internal implementation and exposes only a public interface. [Inheritance] allows a subclass to reuse and extend the behaviour of a [parent] class. [Polymorphism] allows the same method name to behave differently depending on the [object] type.',
+ gaps:['Encapsulation','Inheritance','parent','Polymorphism','object'],
+ explain:'Four pillars of OOP: Encapsulation, Inheritance, Polymorphism, Abstraction (EIPA).',
+ key:'Encapsulation = data hiding; Inheritance = code reuse; Polymorphism = same name, different behaviour.'},
+
+/* ──────────── ALGORITHMS ──────────── */
+{topic:'algorithms',type:'mcq',
+ q:'What is the worst-case time complexity of binary search?',
+ opts:['O(n)','O(n²)','O(log n)','O(1)'],
+ answer:2, hint:'Each step eliminates half the remaining elements.',
+ explain:'Binary search halves the search space each step. With n=1024 elements, worst case is only 10 comparisons (log₂1024 = 10).',
+ key:'Binary search = O(log n); requires sorted input; divide-and-conquer.'},
+
+{topic:'algorithms',type:'calc',
+ q:'How many comparisons does binary search need in the worst case for a sorted list of 64 elements?',
+ hint:'log₂(64) = ?',
+ answer:'6', altAnswers:['6 comparisons','six'],
+ steps:'log₂(64) = 6 (since 2⁶ = 64)',
+ explain:'Each step halves the search space: 64→32→16→8→4→2→1 = 6 steps maximum.',
+ key:'Binary search worst case = ⌈log₂(n)⌉ comparisons; for n=64, that is 6.'},
+
+{topic:'algorithms',type:'trace',
+ q:'Trace through bubble sort on the array [5, 3, 8, 1]. Fill in the array state after each pass.',
+ hint:'Each pass compares adjacent pairs and swaps if left > right. After pass 1, the largest is at the end.',
+ code:`arr = [5, 3, 8, 1]
+Pass 1: compare & swap adjacent pairs
+Pass 2: compare & swap (ignoring last)
+Pass 3: compare & swap (ignoring last 2)`,
+ headers:['Pass','Array after pass'],
+ rows:[
+   {label:'Pass 1', cols:1, answers:['3, 5, 1, 8'], altAnswers:[['3,5,1,8','[3,5,1,8]','3 5 1 8']]},
+   {label:'Pass 2', cols:1, answers:['3, 1, 5, 8'], altAnswers:[['3,1,5,8','[3,1,5,8]','3 1 5 8']]},
+   {label:'Pass 3', cols:1, answers:['1, 3, 5, 8'], altAnswers:[['1,3,5,8','[1,3,5,8]','1 3 5 8']]},
+ ],
+ explain:'Pass 1: (5,3)→swap→(3,5,8,1); (5,8)→ok; (8,1)→swap → [3,5,1,8]. Pass 2: (3,5)→ok; (5,1)→swap → [3,1,5,8]. Pass 3: (3,1)→swap → [1,3,5,8].',
+ key:'Bubble sort: O(n²) worst case; largest "bubbles" to end each pass.'},
+
+{topic:'algorithms',type:'trace',
+ q:'Trace this Python loop. Fill in the values of i, total after each iteration.',
+ hint:'Start with total=0. Each iteration adds i to total.',
+ code:`total = 0
+for i in range(1, 5):
+    total = total + i`,
+ headers:['i','total'],
+ rows:[
+   {label:'i=1', cols:2, answers:['1','1'], altAnswers:[['1'],['1']]},
+   {label:'i=2', cols:2, answers:['2','3'], altAnswers:[['2'],['3']]},
+   {label:'i=3', cols:2, answers:['3','6'], altAnswers:[['3'],['6']]},
+   {label:'i=4', cols:2, answers:['4','10'], altAnswers:[['4'],['10']]},
+ ],
+ explain:'range(1,5) gives 1,2,3,4. Running total: 0+1=1, 1+2=3, 3+3=6, 6+4=10.',
+ key:'Trace tables track variable values after each step; total ends at 10.'},
+
+{topic:'algorithms',type:'mcq',
+ q:'What is the time complexity of merge sort in all cases?',
+ opts:['O(n)','O(n log n)','O(n²)','O(log n)'],
+ answer:1, hint:'Merge sort divides (log n levels) and merges (n work per level).',
+ explain:'Merge sort: log n levels of splitting × n comparisons per merge level = <strong>O(n log n)</strong> in all cases — unlike quicksort which is O(n²) worst case.',
+ key:'Merge sort = O(n log n) always; stable; uses extra memory; divide-and-conquer.'},
+
+{topic:'algorithms',type:'calc',
+ q:'An algorithm has O(n²) complexity. If n=100 takes 0.01 seconds, estimate the time for n=1000.',
+ hint:'O(n²): if n×10, time ×100.',
+ answer:'1', altAnswers:['1 second','1s','~1','1.0'],
+ steps:'Ratio = (1000/100)² = 10² = 100. Time = 0.01 × 100 = 1 second.',
+ explain:'O(n²) means doubling n quadruples time. n×10 → time×100.',
+ key:'O(n²): scale factor = (n_new/n_old)². Use this to estimate runtimes.'},
+
+/* ──────────── SECURITY ──────────── */
+{topic:'security',type:'mcq',
+ q:'What does SQL injection exploit?',
+ opts:['Weak passwords','Unsanitised user input inserted directly into SQL queries','Physical server access','Session cookie theft'],
+ answer:1, hint:'Imagine a login form where the password field is used directly in a query.',
+ explain:'If user input is directly concatenated into SQL, an attacker can inject <code>\'OR 1=1--</code> to bypass authentication or access all data.',
+ key:'SQL injection → unsanitised input; prevent with parameterised queries / prepared statements.'},
+
+{topic:'security',type:'tf',
+ q:'Symmetric encryption uses the same key for encryption and decryption.',
+ answer:true, hint:'What is the difference between symmetric and asymmetric?',
+ explain:'Correct. Symmetric (e.g. AES) uses one shared key — fast but key exchange is a problem. Asymmetric (e.g. RSA) uses a public/private key pair.',
+ key:'Symmetric = 1 key, fast; Asymmetric = public+private key pair, solves key exchange problem.'},
+
+{topic:'security',type:'gap',
+ q:'Complete the description of key cyber attack types.',
+ hint:'Flooding, tricking, and trying every password.',
+ template:'A [DDoS] attack floods a server with traffic from many sources to make it unavailable. [Phishing] tricks users into revealing credentials via fake emails or websites. A [brute force] attack tries every possible password combination. [Malware] is software designed to damage or gain unauthorised access to systems.',
+ gaps:['DDoS','Phishing','brute force','Malware'],
+ explain:'Each attack exploits a different vulnerability: availability, human psychology, weak passwords, system weaknesses.',
+ key:'DDoS=flood; Phishing=deception; Brute force=trial all; Malware=malicious software.'},
+
+{topic:'security',type:'calc',
+ q:'A password uses only lowercase letters (26 options) and is 4 characters long. How many possible passwords are there?',
+ hint:'Each character is independent: 26 × 26 × 26 × 26 = 26⁴',
+ answer:'456976', altAnswers:['456,976','26^4','~456k'],
+ steps:'26⁴ = 26 × 26 × 26 × 26 = 456,976',
+ explain:'Each position has 26 choices, independently. Total = 26⁴ = 456,976 — easily bruted in milliseconds!',
+ key:'Password space = options^length; adding uppercase+numbers+symbols massively increases space.'},
+
+/* ──────────── LOGIC & BOOLEAN ──────────── */
+{topic:'logic',type:'truth',
+ q:'Complete the truth table for the expression: A AND (NOT B)',
+ hint:'NOT B flips B first, then AND requires both inputs to be 1.',
+ headers:['A','B','NOT B','A AND (NOT B)'],
+ rows:[
+   {given:['0','0'], answers:['1','0'], altAnswers:[['1'],['0']]},
+   {given:['0','1'], answers:['0','0'], altAnswers:[['0'],['0']]},
+   {given:['1','0'], answers:['1','1'], altAnswers:[['1'],['1']]},
+   {given:['1','1'], answers:['0','0'], altAnswers:[['0'],['0']]},
+ ],
+ explain:'NOT B: 0→1, 1→0. AND: only true when both inputs are 1. Only row 3 (A=1,B=0) gives 1.',
+ key:'NOT inverts; AND needs both 1; A AND (NOT B) = 1 only when A=1 and B=0.'},
+
+{topic:'logic',type:'truth',
+ q:'Complete the truth table for: (A OR B) AND (NOT A)',
+ hint:'Work out A OR B first, then NOT A, then AND them together.',
+ headers:['A','B','A OR B','NOT A','(A OR B) AND (NOT A)'],
+ rows:[
+   {given:['0','0'], answers:['0','1','0'], altAnswers:[['0'],['1'],['0']]},
+   {given:['0','1'], answers:['1','1','1'], altAnswers:[['1'],['1'],['1']]},
+   {given:['1','0'], answers:['1','0','0'], altAnswers:[['1'],['0'],['0']]},
+   {given:['1','1'], answers:['1','0','0'], altAnswers:[['1'],['0'],['0']]},
+ ],
+ explain:'OR: 0 only if both 0. NOT A flips A. Final AND: 1 only when both sub-results are 1. Only row 2 (A=0,B=1) gives 1.',
+ key:'(A OR B) AND (NOT A) simplifies to: NOT A AND B — true only when A=0, B=1.'},
+
+{topic:'logic',type:'truth',
+ q:'Complete the truth table for XOR (Exclusive OR): A XOR B is 1 when inputs DIFFER.',
+ hint:'XOR is 1 when A and B are different; 0 when they are the same.',
+ headers:['A','B','A XOR B'],
+ rows:[
+   {given:['0','0'], answers:['0'], altAnswers:[['0']]},
+   {given:['0','1'], answers:['1'], altAnswers:[['1']]},
+   {given:['1','0'], answers:['1'], altAnswers:[['1']]},
+   {given:['1','1'], answers:['0'], altAnswers:[['0']]},
+ ],
+ explain:'XOR = 1 only when inputs differ. Used in binary addition (sum bit) and encryption.',
+ key:'XOR: same inputs → 0; different inputs → 1. Used in binary addition and parity checks.'},
+
+{topic:'logic',type:'gap',
+ q:'Fill in the Boolean algebra rules.',
+ hint:'Think about what AND with 0 or 1 always gives, and OR with 0 or 1.',
+ template:'A AND [0] = 0 (annulment). A AND [1] = A (identity). A OR [0] = A (identity). A OR [1] = [1] (annulment). A AND [A] = A (idempotent). A OR [NOT A] = [1] (complement).',
+ gaps:['0','1','0','1','A','NOT A','1'],
+ explain:'These Boolean identity laws allow simplification of logic expressions and circuit designs.',
+ key:'Key laws: AND 0=0; AND 1=A; OR 0=A; OR 1=1; A AND A=A; A OR NOT A=1.'},
+
+{topic:'logic',type:'calc',
+ q:'Convert the decimal number 45 to binary.',
+ hint:'Repeatedly divide by 2, record remainders from bottom to top. Or use: 32+8+4+1=45.',
+ answer:'00101101', altAnswers:['101101','0010 1101','0b101101'],
+ steps:'45 ÷ 2 = 22 r1; 22÷2=11 r0; 11÷2=5 r1; 5÷2=2 r1; 2÷2=1 r0; 1÷2=0 r1. Read remainders bottom-up: 101101 = 00101101',
+ explain:'45 = 32+8+4+1 = 2⁵+2³+2²+2⁰ → bits 5,3,2,0 set = 00101101.',
+ key:'Decimal→Binary: divide by 2, read remainders upward. 45 = 00101101.'},
+
+{topic:'logic',type:'calc',
+ q:'Convert the binary number 11010110 to decimal.',
+ hint:'Write out the place values: 128,64,32,16,8,4,2,1 and add where bit is 1.',
+ answer:'214', altAnswers:['214 decimal','214₁₀'],
+ steps:'128+0+32+0+8+4+2+0 = 128+32+8+4+2 = 174... Bits: 1=128,1=64,0,1=16,0,1=4,1=2,0 = 128+64+16+4+2 = 214',
+ explain:'11010110: positions 7,6,4,2,1 are 1. 128+64+16+4+2 = 214.',
+ key:'Binary→Decimal: sum positional values where bit=1. 11010110 = 214.'},
+
+{topic:'logic',type:'calc',
+ q:'What is 10110 + 01101 in binary? Show the result as an 8-bit binary number.',
+ hint:'Add column by column right to left: 0+1=1, 1+0=1, 1+1=10 (write 0 carry 1), etc.',
+ answer:'00100011', altAnswers:['100011','0010 0011'],
+ steps:'10110 = 22; 01101 = 13; 22+13 = 35 = 00100011',
+ explain:'10110 (22) + 01101 (13) = 35. 35 = 32+2+1 = 00100011.',
+ key:'Binary addition: 0+0=0; 0+1=1; 1+1=10 (0,carry 1); 1+1+1=11 (1,carry 1).'},
+
+{topic:'logic',type:'calc',
+ q:'A character is stored using ASCII. The letter "A" has ASCII code 65. What is the ASCII code for "D"?',
+ hint:'Each subsequent letter has the next ASCII code.',
+ answer:'68', altAnswers:['68 decimal','ASCII 68'],
+ steps:'A=65, B=66, C=67, D=68',
+ explain:'ASCII codes are sequential. A=65, so D = 65+3 = 68.',
+ key:'ASCII: sequential character codes; A=65, Z=90, a=97, 0=48.'},
+
+{topic:'logic',type:'gap',
+ q:'Complete the description of how logic gates work.',
+ hint:'Name the gates: one inverts, one needs both, one needs either.',
+ template:'A [NOT] gate inverts its input: 1 becomes 0. An [AND] gate outputs 1 only when [both] inputs are 1. An [OR] gate outputs 1 when [at least one] input is 1. A [NAND] gate is an AND followed by a NOT — its output is 0 only when both inputs are [1].',
+ gaps:['NOT','AND','both','OR','at least one','NAND','1'],
+ explain:'Logic gates are the building blocks of all digital circuits. NAND and NOR are "universal" — any circuit can be built with just one of them.',
+ key:'NOT=invert; AND=all 1s; OR=any 1; NAND=NOT(AND); NOR=NOT(OR); XOR=different inputs.'},
+
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════════
+let ST = {
+  mode:'quiz', filter:'all',
+  pool:[], idx:0, answered:false,
+  correct:0, wrong:0, streak:0,
+  missed:[], hintsShown:{}
+};
+
+function buildPool(){
+  let src = ALL_Q;
+  if(ST.filter !== 'all') src = src.filter(q=>q.topic===ST.filter);
+  if(ST.mode==='weakspots'){
+    if(ST.missed.length>0) src = ST.missed.map(m=>m.q);
+    else { alert('No weak spots yet — answer some questions first!'); return; }
+  }
+  ST.pool = [...src];
+  ST.idx = 0; ST.answered = false;
+}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
+function shuffleAndReset(){
+  buildPool(); shuffle(ST.pool);
+  ST.correct=ST.wrong=ST.streak=0; ST.missed=[]; ST.hintsShown={};
+  updateStats(); renderQ();
+}
+function setMode(m){
+  ST.mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+  shuffleAndReset();
+}
+function toggleTheme(){
+  const body=document.body;
+  const dark = body.getAttribute('data-theme')==='dark';
+  body.setAttribute('data-theme', dark?'light':'dark');
+  document.getElementById('theme-icon').textContent = dark?'🌙':'☀️';
+}
+function setFilter(id){
+  ST.filter=id;
+  document.querySelectorAll('.tnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tnav-'+id).classList.add('active');
+  ST.correct=ST.wrong=ST.streak=0; updateStats();
+  buildPool(); shuffle(ST.pool); renderQ();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  RENDERING HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+function tc(topicId){ const t=TOPICS.find(t=>t.id===topicId); return t?'tc'+t.color:'tc0'; }
+function tl(topicId){ const t=TOPICS.find(t=>t.id===topicId); return t?t.label:topicId; }
+function typeBadge(type){ const m={mcq:'MCQ',tf:'True/False',short:'Short Answer',gap:'Fill the Gap',code:'Code Completion',truth:'Truth Table',trace:'Trace Table',calc:'Calculation'}; return m[type]||type; }
+
+function updateStats(){
+  document.getElementById('s-correct').textContent=ST.correct;
+  document.getElementById('s-wrong').textContent=ST.wrong;
+  document.getElementById('s-streak').textContent=ST.streak;
+}
+function updateProgress(){
+  const total=ST.pool.length, done=Math.min(ST.idx,total);
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('prog-label').textContent=`Question ${Math.min(ST.idx+1,total)} of ${total}`;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+// ── Build inner HTML per type ──
+function buildMCQ(q){
+  return `<div class="options">`+q.opts.map((o,i)=>
+    `<div class="opt" onclick="mcqAnswer(${i})" id="opt-${i}">
+       <span class="opt-ltr">${String.fromCharCode(65+i)}</span><span>${o}</span></div>`
+  ).join('')+`</div>`;
+}
+function buildTF(q){
+  return `<div class="tf-wrap">
+    <button class="tf-btn" onclick="tfAnswer(true)" id="tf-true">✓ True</button>
+    <button class="tf-btn" onclick="tfAnswer(false)" id="tf-false">✗ False</button>
+  </div>`;
+}
+function buildShort(q){
+  return `<div class="sa-wrap">
+    <textarea class="sa-input" id="sa-in" placeholder="Type your answer…" rows="3"></textarea>
+    <button class="check-btn" onclick="checkShort()">Check Answer →</button>
+  </div>`;
+}
+function buildGap(q){
+  // replace [word] with <input>
+  let gi=0;
+  const html = q.template.replace(/\[([^\]]+)\]/g, ()=>
+    `<input class="gap-input" id="gap-${gi++}" spellcheck="false" autocomplete="off">`
+  );
+  return `<div class="gap-container">${html}</div>
+  <div style="margin-top:14px"><button class="check-btn" onclick="checkGap()">Check Gaps →</button></div>`;
+}
+function buildCode(q){
+  let gi=0;
+  const codeHtml = q.template.replace(/\[([^\]]+)\]/g, ()=>
+    `<input class="code-gap-input" id="cgap-${gi++}" spellcheck="false" autocomplete="off" size="${q.gaps[gi-1]?q.gaps[gi-1].length+2:10}">`
+  );
+  return `<div class="code-block">${codeHtml}</div>
+  <div style="margin-top:14px"><button class="check-btn" onclick="checkCode()">Check Code →</button></div>`;
+}
+function buildTruth(q){
+  const headers = q.headers;
+  const fixedCols = q.rows[0].given.length;
+  let html=`<div class="tt-wrap"><table class="tt-table"><thead><tr>`;
+  headers.forEach(h=>html+=`<th>${h}</th>`);
+  html+=`</tr></thead><tbody>`;
+  q.rows.forEach((row,ri)=>{
+    html+=`<tr>`;
+    row.given.forEach(v=>html+=`<td>${v}</td>`);
+    row.answers.forEach((_,ai)=>html+=`<td><input class="tt-cell-input" id="tt-${ri}-${ai}" maxlength="1" size="2" autocomplete="off"></td>`);
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div>
+  <div style="margin-top:14px"><button class="check-btn" onclick="checkTruth()">Check Table →</button></div>`;
+  return html;
+}
+function buildTrace(q){
+  let html=`<div class="code-block" style="margin-bottom:14px">${q.code}</div>
+  <div class="trace-wrap"><table class="trace-table"><thead><tr><th>Step</th>`;
+  q.headers.forEach(h=>html+=`<th>${h}</th>`);
+  html+=`</tr></thead><tbody>`;
+  q.rows.forEach((row,ri)=>{
+    html+=`<tr><td style="color:var(--muted);font-size:11px;font-family:var(--mono)">${row.label}</td>`;
+    for(let ci=0;ci<row.cols;ci++){
+      html+=`<td><input class="trace-cell" id="tr-${ri}-${ci}" autocomplete="off"></td>`;
+    }
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div>
+  <div style="margin-top:14px"><button class="check-btn" onclick="checkTrace()">Check Trace →</button></div>`;
+  return html;
+}
+function buildCalc(q){
+  return `<div class="calc-wrap">
+    <input class="calc-input" id="calc-in" placeholder="Your answer…" autocomplete="off">
+    <button class="check-btn" onclick="checkCalc()">Check Answer →</button>
+    <div class="calc-steps" id="calc-steps" style="display:none"></div>
+  </div>`;
+}
+
+// ── MAIN RENDER ──
+function renderQ(){
+  const area=document.getElementById('quiz-area');
+  const sumEl=document.getElementById('summary');
+  area.style.display='block'; sumEl.style.display='none';
+  if(ST.idx>=ST.pool.length){ showSummary(); return; }
+  const q=ST.pool[ST.idx]; ST.answered=false;
+  updateProgress();
+
+  let inner='';
+  if(q.type==='mcq') inner=buildMCQ(q);
+  else if(q.type==='tf') inner=buildTF(q);
+  else if(q.type==='short') inner=buildShort(q);
+  else if(q.type==='gap') inner=buildGap(q);
+  else if(q.type==='code') inner=buildCode(q);
+  else if(q.type==='truth') inner=buildTruth(q);
+  else if(q.type==='trace') inner=buildTrace(q);
+  else if(q.type==='calc') inner=buildCalc(q);
+
+  const hintId='hint-'+ST.idx;
+  const hintSection = q.hint ? `
+    <div style="display:flex;gap:8px;align-items:center;margin-top:16px;flex-wrap:wrap">
+      <button class="hint-btn" onclick="showHint(${ST.idx})">💡 Show Hint <span class="hint-counter" id="hc-${ST.idx}"></span></button>
+    </div>
+    <div class="hint-box ${ST.hintsShown[ST.idx]?'show':''}" id="${hintId}">${q.hint}</div>
+  ` : '';
+
+  area.innerHTML=`<div class="q-card">
+    <div class="q-meta">
+      <span class="topic-tag ${tc(q.topic)}">${tl(q.topic)}</span>
+      <span class="qnum">#${ST.idx+1}</span>
+      <span class="type-badge">${typeBadge(q.type)}</span>
+    </div>
+    <div class="q-text">${q.q}</div>
+    ${inner}
+    ${hintSection}
+    <div class="result-banner" id="rb"></div>
+    <div class="explanation" id="exp">
+      <div>${q.explain}</div>
+      <div class="key-point">📌 ${q.key}</div>
+    </div>
+    <div class="q-controls">
+      <button class="nav-btn" onclick="prevQ()" ${ST.idx===0?'disabled':''}>← Prev</button>
+      <button class="nav-btn next" id="next-btn" onclick="nextQ()" style="display:none">Next →</button>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  HINT
+// ═══════════════════════════════════════════════════════════════════════
+function showHint(idx){
+  ST.hintsShown[idx]=true;
+  const box=document.getElementById('hint-'+idx);
+  if(box) box.classList.add('show');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  ANSWER LOGIC
+// ═══════════════════════════════════════════════════════════════════════
+function revealResult(correct, wrongMsg=''){
+  const rb=document.getElementById('rb');
+  const exp=document.getElementById('exp');
+  const next=document.getElementById('next-btn');
+  exp.classList.add('show');
+  next.style.display='inline-block';
+  if(correct){
+    rb.textContent='✓ Correct!';
+    rb.className='result-banner show rb-correct';
+    ST.correct++; ST.streak++;
+  } else {
+    rb.textContent=wrongMsg||'✗ Incorrect — see explanation below.';
+    rb.className='result-banner show rb-wrong';
+    ST.streak=0; ST.wrong++;
+    const q=ST.pool[ST.idx];
+    if(!ST.missed.find(m=>m.q===q)) ST.missed.push({q,correctAnswer:q.key});
+  }
+  ST.answered=true;
+  updateStats();
+}
+
+function mcqAnswer(chosen){
+  if(ST.answered) return;
+  const q=ST.pool[ST.idx];
+  document.querySelectorAll('.opt').forEach(e=>e.classList.add('disabled'));
+  document.getElementById('opt-'+q.answer).classList.add('correct');
+  const ok=chosen===q.answer;
+  if(!ok) document.getElementById('opt-'+chosen).classList.add('wrong');
+  revealResult(ok, ok?'':'✗ Incorrect — correct answer was '+String.fromCharCode(65+q.answer)+'.');
+}
+
+function tfAnswer(chosen){
+  if(ST.answered) return;
+  const q=ST.pool[ST.idx];
+  document.getElementById('tf-true').classList.add('disabled');
+  document.getElementById('tf-false').classList.add('disabled');
+  const ok=chosen===q.answer;
+  document.getElementById(q.answer?'tf-true':'tf-false').classList.add('correct');
+  if(!ok) document.getElementById(chosen?'tf-true':'tf-false').classList.add('wrong');
+  revealResult(ok, ok?'':'✗ Incorrect — the answer is '+(q.answer?'True':'False')+'.');
+}
+
+function checkShort(){
+  if(ST.answered) return;
+  const q=ST.pool[ST.idx];
+  const val=document.getElementById('sa-in').value.toLowerCase().trim();
+  const hits=q.keywords.filter(k=>val.includes(k.toLowerCase()));
+  const ok=hits.length/q.keywords.length>=0.4&&val.length>8;
+  const exp=document.getElementById('exp');
+  exp.innerHTML+=`<div class="model-answer"><strong>Model Answer:</strong> ${q.modelAnswer}</div>`;
+  if(!ok) document.getElementById('rb').textContent=`→ Key concepts missed: ${q.keywords.filter(k=>!hits.includes(k)).slice(0,4).join(', ')}.`;
+  revealResult(ok, `→ Key concepts missed: ${q.keywords.filter(k=>!hits.includes(k)).slice(0,4).join(', ')}.`);
+}
+
+function checkGap(){
+  if(ST.answered) return;
+  const q=ST.pool[ST.idx];
+  let allOk=true;
+  q.gaps.forEach((ans,i)=>{
+    const el=document.getElementById('gap-'+i);
+    if(!el) return;
+    const val=el.value.trim().toLowerCase();
+    const ok=val===ans.toLowerCase();
+    el.classList.toggle('correct-gap',ok);
+    el.classList.toggle('wrong-gap',!ok);
+    if(!ok){ el.value=ans; allOk=false; }
+  });
+  revealResult(allOk, '✗ Some gaps were incorrect — corrected answers shown above.');
+}
+
+function checkCode(){
+  if(ST.answered) return;
+  const q=ST.pool[ST.idx];
+  let allOk=true;
+  q.gaps.forEach((ans,i)=>{
+    const el=document.getElementById('cgap-'+i);
+    if(!el) return;
+    const val=el.value.trim();
+    const ok=val===ans;
+    el.classList.toggle('correct-gap',ok);
+    el.classList.toggle('wrong-gap',!ok);
+    if(!ok){ el.value=ans; allOk=false; }
+  });
+  revealResult(allOk, '✗ Some code gaps were incorrect — corrected answers shown.');
+}
+
+function checkTruth(){
+  if(ST.answered) return;
+  const q=ST.pool[ST.idx];
+  let allOk=true;
+  q.rows.forEach((row,ri)=>{
+    row.answers.forEach((ans,ai)=>{
+      const el=document.getElementById(`tt-${ri}-${ai}`);
+      if(!el) return;
+      const val=el.value.trim();
+      const ok=val===ans;
+      el.classList.toggle('correct-gap',ok);
+      el.classList.toggle('wrong-gap',!ok);
+      if(!ok){ el.value=ans; allOk=false; }
+    });
+  });
+  revealResult(allOk,'✗ Some cells were incorrect — corrected values shown.');
+}
+
+function checkTrace(){
+  if(ST.answered) return;
+  const q=ST.pool[ST.idx];
+  let allOk=true;
+  q.rows.forEach((row,ri)=>{
+    for(let ci=0;ci<row.cols;ci++){
+      const el=document.getElementById(`tr-${ri}-${ci}`);
+      if(!el) continue;
+      const expected=row.answers[ci];
+      const val=el.value.trim();
+      const alts=row.altAnswers&&row.altAnswers[ci]?row.altAnswers[ci]:[];
+      const ok=val===expected||alts.some(a=>val.toLowerCase()===a.toLowerCase());
+      el.classList.toggle('correct-gap',ok);
+      el.classList.toggle('wrong-gap',!ok);
+      if(!ok){ el.value=expected; allOk=false; }
+    }
+  });
+  revealResult(allOk,'✗ Some trace values were incorrect — corrected values shown.');
+}
+
+function checkCalc(){
+  if(ST.answered) return;
+  const q=ST.pool[ST.idx];
+  const el=document.getElementById('calc-in');
+  const val=el.value.trim().toLowerCase().replace(/,/g,'');
+  const expected=q.answer.toLowerCase().replace(/,/g,'');
+  const alts=(q.altAnswers||[]).map(a=>a.toLowerCase().replace(/,/g,''));
+  const ok=val===expected||alts.some(a=>val===a)||val.includes(expected);
+  el.classList.toggle('correct-gap',ok);
+  el.classList.toggle('wrong-gap',!ok);
+  const stepsEl=document.getElementById('calc-steps');
+  if(stepsEl){ stepsEl.style.display='block'; stepsEl.innerHTML='<strong>Working:</strong> '+q.steps; }
+  if(!ok) el.value=q.answer;
+  revealResult(ok,'✗ Incorrect — working shown below. Correct answer: '+q.answer);
+}
+
+function nextQ(){ ST.idx++; renderQ(); }
+function prevQ(){ if(ST.idx>0){ ST.idx--; renderQ(); } }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SUMMARY
+// ═══════════════════════════════════════════════════════════════════════
+function showSummary(){
+  document.getElementById('quiz-area').style.display='none';
+  const s=document.getElementById('summary');
+  const total=ST.correct+ST.wrong;
+  const pct=total?Math.round(ST.correct/total*100):0;
+  const grade=pct>=80?'Excellent work! 🎉':pct>=60?'Good effort! 📚':'Keep revising! 💪';
+  let missedHTML='';
+  if(ST.missed.length>0){
+    missedHTML=`<div class="missed-list"><h3>Questions to revisit (${ST.missed.length})</h3>`+
+      ST.missed.slice(0,12).map(m=>`<div class="missed-item">
+        <div class="mi-q">${m.q.q.substring(0,90)}${m.q.q.length>90?'…':''}</div>
+        <div class="mi-a">📌 ${m.correctAnswer.substring(0,100)}</div>
+      </div>`).join('')+`</div>`;
+  }
+  s.innerHTML=`<h2>${grade}</h2>
+    <div class="big-score">${pct}%</div>
+    <p>${ST.correct} correct out of ${total} attempted</p>
+    <button class="sum-btn" onclick="shuffleAndReset()">Try Again (Shuffled)</button>
+    <button class="sum-btn" onclick="setMode('weakspots')">Practice Weak Spots</button>
+    <button class="sum-btn sec" onclick="setFilter('all')">Reset All Topics</button>
+    ${missedHTML}`;
+  s.style.display='block';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TOPIC NAV
+// ═══════════════════════════════════════════════════════════════════════
+function buildTopicNav(){
+  const nav=document.getElementById('topic-nav');
+  nav.innerHTML=`<button class="tnav-btn all active" id="tnav-all" onclick="setFilter('all')">All Topics</button>`+
+    TOPICS.map(t=>`<button class="tnav-btn ${tc(t.id)}" id="tnav-${t.id}" onclick="setFilter('${t.id}')">${t.label}</button>`).join('');
+}
+
+// ── INIT ──
+buildTopicNav();
+buildPool();
+shuffle(ST.pool);
+renderQ();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whiteboard Quick-Fire Retrieval Bank</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+<script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+<body class="bg-[#0b1220] text-slate-100 min-h-screen p-4 md:p-8">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <header class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold text-white">Whiteboard Quick-Fire Retrieval Questions</h1>
+        <p class="text-xs text-slate-400 mt-1">High-impact retrieval practice for starters, plenaries, and mini-whiteboards</p>
+      </div>
+      <button onclick="pickRandom()" class="px-4 py-2 bg-rose-500 hover:bg-rose-400 text-white rounded-xl text-xs font-bold transition-all shadow-md">
+        Random Question
+      </button>
+    </header>
+
+    <div id="displayCard" class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4 shadow-xl">
+      <span id="topicTag" class="text-xs font-mono font-bold text-rose-400 uppercase tracking-widest">Systems Architecture</span>
+      <h2 id="qText" class="text-2xl font-extrabold text-white leading-snug">
+        What does the Program Counter (PC) register store in the CPU?
+      </h2>
+      <div id="aBox" class="hidden text-sm text-emerald-300 font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 mt-4">
+        The memory address of the NEXT instruction to be fetched from RAM.
+      </div>
+      <button id="revealBtn" onclick="toggleAnswer()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all">
+        Reveal Answer
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const bank = [
+      { t: "Systems Architecture", q: "What does the Program Counter (PC) register store in the CPU?", a: "The memory address of the NEXT instruction to be fetched from RAM." },
+      { t: "Memory & Storage", q: "State two differences between RAM and ROM.", a: "RAM is volatile and read/write; ROM is non-volatile and read-only." },
+      { t: "Networks", q: "What is the role of a Router in network packet transmission?", a: "To forward data packets between different networks using IP addresses." },
+      { t: "Algorithms", q: "Why must a list be sorted before applying a binary search?", a: "Because binary search relies on comparing the target to the midpoint to discard half the remaining list." },
+      { t: "Cyber Security", q: "What is the difference between a virus and a worm?", a: "A virus requires user action to replicate (e.g. running a file); a worm replicates and spreads automatically across a network." }
+    ];
+
+    let idx = 0;
+    let showing = false;
+
+    function pickRandom() {
+      idx = Math.floor(Math.random() * bank.length);
+      showing = false;
+      render();
+    }
+
+    function toggleAnswer() {
+      showing = !showing;
+      render();
+    }
+
+    function render() {
+      const item = bank[idx];
+      document.getElementById('topicTag').innerText = item.t;
+      document.getElementById('qText').innerText = item.q;
+      const aBox = document.getElementById('aBox');
+      const btn = document.getElementById('revealBtn');
+      if (showing) {
+        aBox.innerText = item.a;
+        aBox.classList.remove('hidden');
+        btn.innerText = "Hide Answer";
+      } else {
+        aBox.classList.add('hidden');
+        btn.innerText = "Reveal Answer";
+      }
+    }
+  </script>
+</body>
+</html>

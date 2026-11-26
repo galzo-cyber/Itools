@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OCR Creative iMedia (J834) Knowledge Forge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    code, .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+<script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+<body class="bg-[#0A0F1D] text-slate-100 min-h-screen p-3 md:p-6 antialiased">
+  <div class="max-w-5xl mx-auto space-y-5">
+    
+    <!-- Top Header -->
+    <header class="bg-[#111827] border border-slate-800/80 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center font-black text-xl shadow-inner">
+          OCR
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg md:text-xl font-extrabold text-white tracking-tight">Creative iMedia (J834) Knowledge Forge</h1>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">J834 Spec</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">Units R093 (Media Industry & Pre-Production), R094 (Visual Identity & Graphics), R097 (Interactive Media)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-amber-600 text-white shadow-md">
+          Exam Quiz
+        </button>
+        <button onclick="switchTab('flashcards')" id="tab-btn-flashcards" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white">
+          Flashcards
+        </button>
+        <button onclick="switchTab('blueprints')" id="tab-btn-blueprints" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white">
+          Doc Blueprints
+        </button>
+        <button onclick="switchTab('camera')" id="tab-btn-camera" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white">
+          Camera Shots
+        </button>
+      </div>
+    </header>
+
+    <!-- TAB 1: EXAM QUIZ -->
+    <div id="section-quiz" class="space-y-4">
+      <div class="bg-[#111827] border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-bold text-slate-400">FILTER:</span>
+          <button onclick="setQuizFilter('All')" id="qf-All" class="px-3 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white">All Units</button>
+          <button onclick="setQuizFilter('R093')" id="qf-R093" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400">R093</button>
+          <button onclick="setQuizFilter('R094')" id="qf-R094" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400">R094</button>
+          <button onclick="setQuizFilter('R097')" id="qf-R097" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400">R097</button>
+        </div>
+        <div class="text-xs font-mono">
+          Score: <span id="quiz-score" class="text-amber-400 font-bold">0</span> / <span id="quiz-total">0</span>
+        </div>
+      </div>
+
+      <div class="bg-[#111827] border border-slate-800/80 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span id="quiz-unit-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">R093</span>
+            <span id="quiz-topic-badge" class="text-xs font-bold text-slate-400">Topic</span>
+          </div>
+          <span id="quiz-counter" class="text-xs font-mono text-slate-500">Question 1 of 10</span>
+        </div>
+
+        <h2 id="quiz-question-text" class="text-lg md:text-xl font-bold leading-relaxed text-white">
+          Question Loading...
+        </h2>
+
+        <div id="quiz-options-container" class="space-y-3">
+          <!-- Populated by JS -->
+        </div>
+
+        <div id="quiz-explanation-box" class="hidden p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-slate-200 leading-relaxed">
+          <span class="font-mono font-bold text-amber-400 block mb-1">OCR EXAMINER MARK SCHEME:</span>
+          <p id="quiz-explanation-text"></p>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+          <button onclick="prevQuestion()" id="btn-prev" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300">
+            Previous
+          </button>
+          <button onclick="nextQuestion()" id="btn-next" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white">
+            Next Question
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: FLASHCARDS -->
+    <div id="section-flashcards" class="hidden space-y-4">
+      <div class="bg-[#111827] border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between">
+        <span class="text-xs font-mono font-bold text-slate-400">SMART FLASHCARD DECK</span>
+        <span id="flashcard-counter" class="text-xs font-mono text-amber-400">Card 1 of 10</span>
+      </div>
+
+      <div onclick="flipFlashcard()" class="bg-[#111827] border-2 border-slate-800 hover:border-amber-500/50 rounded-3xl p-8 md:p-14 min-h-[320px] flex flex-col justify-between cursor-pointer transition-all shadow-xl text-center select-none">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-500">
+          <span id="fc-unit-tag" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">R093</span>
+          <span>Click anywhere to flip</span>
+        </div>
+
+        <div id="fc-front" class="my-auto py-4">
+          <span class="text-xs font-mono font-bold uppercase tracking-widest text-amber-400 block mb-2">Key Concept</span>
+          <h2 id="fc-term" class="text-2xl md:text-3xl font-black text-white">Term</h2>
+          <span class="inline-block mt-3 text-xs text-slate-500 bg-slate-800/80 px-3 py-1 rounded-full">Click to show definition & exam fact</span>
+        </div>
+
+        <div id="fc-back" class="hidden my-auto py-4 text-left max-w-xl mx-auto space-y-3">
+          <span class="text-xs font-mono font-bold uppercase tracking-wider text-amber-400 block">Definition:</span>
+          <p id="fc-definition" class="text-base md:text-lg font-bold text-white leading-relaxed"></p>
+          <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-slate-300">
+            <strong class="text-amber-400 font-mono">EXAMINER TIP: </strong>
+            <span id="fc-fact"></span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs" onclick="event.stopPropagation()">
+          <button onclick="prevFlashcard()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold">Previous</button>
+          <button onclick="nextFlashcard()" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold">Next Card</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: PRE-PRODUCTION BLUEPRINTS -->
+    <div id="section-blueprints" class="hidden space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-[#111827] border border-slate-800 rounded-2xl p-5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-amber-400">Mood Board</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300">R093 TA3</span>
+          </div>
+          <p class="text-slate-300"><strong>Purpose:</strong> Generates visual ideas and conveys aesthetic feel, tone, and vibe to the client.</p>
+          <p class="text-slate-400"><strong>Contents:</strong> Sample photos, textures, materials, colour palettes, font samples, brief annotations.</p>
+          <div class="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[11px]">
+            <strong>Examiner Rule:</strong> A Mood Board defines feeling/atmosphere, NEVER layout or measurements!
+          </div>
+        </div>
+
+        <div class="bg-[#111827] border border-slate-800 rounded-2xl p-5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-amber-400">Visualisation Diagram</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300">R093 TA3</span>
+          </div>
+          <p class="text-slate-300"><strong>Purpose:</strong> Plans static spatial composition and proportions of a single non-moving product.</p>
+          <p class="text-slate-400"><strong>Contents:</strong> Layout positioning, logo placement, headline sizing, dimensions, colour codes, margins.</p>
+          <div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px]">
+            <strong>Use for:</strong> Posters, magazine covers, game packaging, web page wireframes.
+          </div>
+        </div>
+
+        <div class="bg-[#111827] border border-slate-800 rounded-2xl p-5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-amber-400">Storyboard</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300">R093 TA3</span>
+          </div>
+          <p class="text-slate-300"><strong>Purpose:</strong> Maps sequential chronological flow of moving or time-based media.</p>
+          <p class="text-slate-400"><strong>Contents:</strong> Illustrated panels, shot types (CU, MS, LS), camera angles, movement, sound/dialogue, timings.</p>
+          <div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px]">
+            <strong>Use for:</strong> Video adverts, films, game cutscenes, animations.
+          </div>
+        </div>
+
+        <div class="bg-[#111827] border border-slate-800 rounded-2xl p-5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-amber-400">Script</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300">R093 TA3</span>
+          </div>
+          <p class="text-slate-300"><strong>Purpose:</strong> Written directions and spoken lines for actors, voice talent, and crew.</p>
+          <p class="text-slate-400"><strong>Contents:</strong> Sluglines (INT/EXT - DAY/NIGHT), centered character names, dialogue, parentheticals, SFX.</p>
+          <div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px]">
+            <strong>Key Convention:</strong> Standard screenplay format written in the active present tense.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CAMERA SHOTS -->
+    <div id="section-camera" class="hidden space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+        <div class="p-4 rounded-xl bg-[#111827] border border-slate-800 space-y-1">
+          <span class="px-2 py-0.5 rounded font-mono font-bold bg-amber-500/20 text-amber-400 text-[10px]">ECU</span>
+          <h4 class="font-bold text-white text-sm">Extreme Close-Up</h4>
+          <p class="text-slate-400">Focuses purely on eyes, mouth, or small object. Conveys intense emotion, tension, or subtle detail.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-[#111827] border border-slate-800 space-y-1">
+          <span class="px-2 py-0.5 rounded font-mono font-bold bg-amber-500/20 text-amber-400 text-[10px]">CU</span>
+          <h4 class="font-bold text-white text-sm">Close-Up</h4>
+          <p class="text-slate-400">Head and shoulders. Emphasizes character facial expressions and viewer empathy.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-[#111827] border border-slate-800 space-y-1">
+          <span class="px-2 py-0.5 rounded font-mono font-bold bg-amber-500/20 text-amber-400 text-[10px]">MS</span>
+          <h4 class="font-bold text-white text-sm">Mid Shot</h4>
+          <p class="text-slate-400">Waist-up. Natural conversation distance showing body language and nearby environment.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-[#111827] border border-slate-800 space-y-1">
+          <span class="px-2 py-0.5 rounded font-mono font-bold bg-amber-500/20 text-amber-400 text-[10px]">LS</span>
+          <h4 class="font-bold text-white text-sm">Long Shot</h4>
+          <p class="text-slate-400">Full body from head to toe. Places the character clearly inside their physical setting.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-[#111827] border border-slate-800 space-y-1">
+          <span class="px-2 py-0.5 rounded font-mono font-bold bg-amber-500/20 text-amber-400 text-[10px]">HA</span>
+          <h4 class="font-bold text-white text-sm">High Angle</h4>
+          <p class="text-slate-400">Camera looks down on subject. Makes character appear weak, vulnerable, or insignificant.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-[#111827] border border-slate-800 space-y-1">
+          <span class="px-2 py-0.5 rounded font-mono font-bold bg-amber-500/20 text-amber-400 text-[10px]">LA</span>
+          <h4 class="font-bold text-white text-sm">Low Angle</h4>
+          <p class="text-slate-400">Camera looks up at subject. Makes character appear dominant, heroic, or intimidating.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const QUIZ_DATA = [
+      {
+        unit: "R093",
+        topic: "Pre-Production Documents",
+        q: "Which pre-production document is specifically used to demonstrate the intended mood, feel, and aesthetic styling of a media product through colours, fabrics, and sample images?",
+        options: ["Mind Map (Spidergram)", "Mood Board", "Visualisation Diagram", "Storyboard"],
+        correct: 1,
+        exp: "A Mood Board collates textures, sample colour palettes, typography, and imagery to convey the overall feeling, vibe, or aesthetic tone of a proposed media product to a client."
+      },
+      {
+        unit: "R093",
+        topic: "Pre-Production Documents",
+        q: "What is the primary purpose of a Visualisation Diagram in media pre-production?",
+        options: [
+          "To map camera angles, dialogue, and timing sequences for a video",
+          "To illustrate the static visual layout, composition, and proportions of a single still product",
+          "To plan tasks, milestones, and contingency days on a calendar",
+          "To generate initial brainstormed thoughts radiating from a central idea"
+        ],
+        correct: 1,
+        exp: "Visualisation Diagrams show the static spatial composition, layout, typography sizing, colour allocations, and annotations for non-moving products like posters, web pages, or game covers."
+      },
+      {
+        unit: "R093",
+        topic: "Legal Constraints",
+        q: "Under the Copyright, Designs and Patents Act 1988, what must a media producer do before using a commercially recorded pop song in their YouTube advert?",
+        options: [
+          "Simply state 'No copyright infringement intended' in the video description",
+          "Change the pitch of the song by 5% and use less than 10 seconds of it",
+          "Obtain explicit written permission or a synchronisation/commercial license from the copyright owner",
+          "Acknowledge the singer's name in the end credits without needing permission"
+        ],
+        correct: 2,
+        exp: "Under the Copyright, Designs and Patents Act 1988, using proprietary music commercially requires express written permission or an agreed synchronization license from the copyright holder."
+      },
+      {
+        unit: "R094",
+        topic: "Technical Properties",
+        q: "Why would a graphic designer create a company logo as a Vector graphic (SVG) rather than a Raster graphic (JPEG)?",
+        options: [
+          "Vector graphics use mathematical paths that scale infinitely without pixelation or quality loss",
+          "Vector graphics support millions more colours than raster images",
+          "Vector files cannot be opened on mobile devices, making them more secure",
+          "Vector graphics automatically compress photographs with higher fidelity than PNG"
+        ],
+        correct: 0,
+        exp: "Vector graphics are built from mathematical equations allowing infinite scaling with zero pixelation."
+      },
+      {
+        unit: "R094",
+        topic: "Colour Systems",
+        q: "Which colour mode must be selected when preparing a graphic asset for commercial four-colour lithographic printing?",
+        options: [
+          "RGB (Red, Green, Blue)",
+          "CMYK (Cyan, Magenta, Yellow, Key/Black)",
+          "Grayscale 8-bit",
+          "Indexed 256 Color"
+        ],
+        correct: 1,
+        exp: "CMYK is the subtractive ink model used for physical commercial print. RGB is used exclusively for digital screen monitors."
+      },
+      {
+        unit: "R097",
+        topic: "Navigation",
+        q: "Which navigation structure forces the user to progress through screens sequentially one after the other in a fixed, predetermined order?",
+        options: [
+          "Hierarchical Structure",
+          "Linear Navigation Structure",
+          "Webbed (Mesh) Structure",
+          "Matrix Navigation Structure"
+        ],
+        correct: 1,
+        exp: "Linear navigation moves sequentially step-by-step from one screen to the next (e.g. checkout funnel or sequential tutorial)."
+      }
+    ];
+
+    const FLASHCARDS = [
+      { unit: "R093", term: "Mood Board", def: "A visual collage of sample images, textures, materials, and colours capturing the overall aesthetic feel and atmosphere.", tip: "Focuses on feeling and style, NOT layout or positioning." },
+      { unit: "R093", term: "Visualisation Diagram", def: "A static mock-up of a planned still product showing layout, proportions, text placement, and annotations.", tip: "Used for posters, magazine covers, website pages, and game packaging." },
+      { unit: "R093", term: "Storyboard", def: "Sequential illustrated panels showing video flow with shot types, camera angles, sound, and timings.", tip: "Essential for moving media (animations, adverts, cutscenes)." },
+      { unit: "R093", term: "Copyright Act 1988", def: "UK law protecting original creative works from unauthorised copying or commercial use.", tip: "Writing 'No copyright intended' offers ZERO legal protection." },
+      { unit: "R094", term: "Vector Graphic", def: "A graphic composed of mathematical paths and curves that scales infinitely without pixelation.", tip: "Essential format for corporate logos and icons (SVG, EPS)." },
+      { unit: "R094", term: "RGB vs CMYK", def: "RGB (screens, additive light) vs CMYK (print inks, subtractive pigment).", tip: "Always convert to CMYK before sending artwork to print." },
+      { unit: "R097", term: "Hierarchical Navigation", def: "A tree-like structure where a homepage branches into categories and sub-pages.", tip: "The standard structure for modern websites and intranets." },
+      { unit: "R097", term: "Alt Text", def: "Descriptive text tags for non-text content enabling screen reader accessibility.", tip: "Core WCAG requirement for visually impaired users." }
+    ];
+
+    // Quiz State
+    let currentFilter = "All";
+    let qIndex = 0;
+    let score = 0;
+    let answered = 0;
+    let hasAnswered = false;
+
+    function getFilteredQuestions() {
+      if (currentFilter === "All") return QUIZ_DATA;
+      return QUIZ_DATA.filter(q => q.unit === currentFilter);
+    }
+
+    function setQuizFilter(unit) {
+      currentFilter = unit;
+      ["All", "R093", "R094", "R097"].forEach(u => {
+        const btn = document.getElementById("qf-" + u);
+        if (btn) {
+          btn.className = u === unit ? "px-3 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white" : "px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-slate-400";
+        }
+      });
+      qIndex = 0;
+      hasAnswered = false;
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const list = getFilteredQuestions();
+      if (!list[qIndex]) qIndex = 0;
+      const q = list[qIndex];
+
+      document.getElementById("quiz-unit-badge").textContent = q.unit;
+      document.getElementById("quiz-topic-badge").textContent = q.topic;
+      document.getElementById("quiz-counter").textContent = "Question " + (qIndex + 1) + " of " + list.length;
+      document.getElementById("quiz-question-text").textContent = q.q;
+
+      const container = document.getElementById("quiz-options-container");
+      container.innerHTML = "";
+      hasAnswered = false;
+      document.getElementById("quiz-explanation-box").classList.add("hidden");
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-800 hover:border-slate-700 bg-slate-800/60 hover:bg-slate-800 transition-all flex items-center justify-between cursor-pointer";
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-lg font-mono text-xs font-bold bg-white/10 flex items-center justify-center">${String.fromCharCode(65 + idx)}</span>
+            <span class="text-sm font-semibold text-slate-200">${opt}</span>
+          </div>
+        `;
+        btn.onclick = () => selectOption(idx, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectOption(selectedIdx, clickedBtn) {
+      if (hasAnswered) return;
+      hasAnswered = true;
+      answered++;
+      const list = getFilteredQuestions();
+      const q = list[qIndex];
+
+      const buttons = document.getElementById("quiz-options-container").querySelectorAll("button");
+      buttons.forEach((b, idx) => {
+        if (idx === q.correct) {
+          b.className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-500/20 text-emerald-200 font-bold transition-all flex items-center justify-between";
+        } else if (idx === selectedIdx) {
+          b.className = "w-full text-left p-4 rounded-2xl border-2 border-rose-500 bg-rose-500/20 text-rose-200 font-bold transition-all flex items-center justify-between";
+        } else {
+          b.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-800 bg-slate-800/40 text-slate-500 opacity-50";
+        }
+      });
+
+      if (selectedIdx === q.correct) {
+        score++;
+      }
+
+      document.getElementById("quiz-score").textContent = score;
+      document.getElementById("quiz-total").textContent = answered;
+
+      document.getElementById("quiz-explanation-text").textContent = q.exp;
+      document.getElementById("quiz-explanation-box").classList.remove("hidden");
+    }
+
+    function nextQuestion() {
+      const list = getFilteredQuestions();
+      if (qIndex < list.length - 1) {
+        qIndex++;
+        renderQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (qIndex > 0) {
+        qIndex--;
+        renderQuestion();
+      }
+    }
+
+    // Flashcards State
+    let fcIndex = 0;
+    let isFlipped = false;
+
+    function renderFlashcard() {
+      const fc = FLASHCARDS[fcIndex];
+      document.getElementById("fc-unit-tag").textContent = fc.unit;
+      document.getElementById("flashcard-counter").textContent = "Card " + (fcIndex + 1) + " of " + FLASHCARDS.length;
+      document.getElementById("fc-term").textContent = fc.term;
+      document.getElementById("fc-definition").textContent = fc.def;
+      document.getElementById("fc-fact").textContent = fc.tip;
+
+      isFlipped = false;
+      document.getElementById("fc-front").classList.remove("hidden");
+      document.getElementById("fc-back").classList.add("hidden");
+    }
+
+    function flipFlashcard() {
+      isFlipped = !isFlipped;
+      if (isFlipped) {
+        document.getElementById("fc-front").classList.add("hidden");
+        document.getElementById("fc-back").classList.remove("hidden");
+      } else {
+        document.getElementById("fc-front").classList.remove("hidden");
+        document.getElementById("fc-back").classList.add("hidden");
+      }
+    }
+
+    function nextFlashcard() {
+      fcIndex = (fcIndex + 1) % FLASHCARDS.length;
+      renderFlashcard();
+    }
+
+    function prevFlashcard() {
+      fcIndex = (fcIndex - 1 + FLASHCARDS.length) % FLASHCARDS.length;
+      renderFlashcard();
+    }
+
+    // Tab switching
+    function switchTab(tabId) {
+      ["quiz", "flashcards", "blueprints", "camera"].forEach(t => {
+        const sec = document.getElementById("section-" + t);
+        const btn = document.getElementById("tab-btn-" + t);
+        if (t === tabId) {
+          sec.classList.remove("hidden");
+          btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-amber-600 text-white shadow-md";
+        } else {
+          sec.classList.add("hidden");
+          btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white";
+        }
+      });
+    }
+
+    // Init
+    renderQuestion();
+    renderFlashcard();
+  </script>
+</body>
+</html>
